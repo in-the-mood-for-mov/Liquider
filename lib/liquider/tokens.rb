@@ -3,7 +3,7 @@ module Liquider::Tokens
   class Token
     attr_reader :text
 
-    def initialize(text)
+    def initialize(text, line, column)
       @text = text
     end
   end
@@ -16,25 +16,25 @@ module Liquider::Tokens
     end
   end
 
-  class MustacheOpen < Token
+  class TagOpen < Token
     def self.pattern
       %r<\A{%>
     end
   end
 
-  class MustacheClose < Token
+  class TagClose < Token
     def self.pattern
       %r<\A%}>
     end
   end
 
-  class DoubleMustacheOpen < Token
+  class MustacheOpen < Token
     def self.pattern
       %r<\A{{>
     end
   end
 
-  class DoubleMustacheClose < Token
+  class MustacheClose < Token
     def self.pattern
       %r<\A}}>
     end
@@ -60,7 +60,7 @@ module Liquider::Tokens
 
   class BinaryOp < Token
     def self.pattern
-      %r{\A(?:(?:==)|(?:/=)|(?:>=)|(?:<=)|(?:>)|(?:<)|\+|-|\*|/)}
+      %r{\A(?:(?:==)|(?:!=)|(?:>=)|(?:<=)|>|<|\+|-|\*|/)}
     end
   end
 
