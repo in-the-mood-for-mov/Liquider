@@ -1,18 +1,27 @@
 module Liquider::Tokens
 
   class Token
-    attr_reader :text
+    attr_reader :text, :line, :column
 
     def initialize(text, line, column)
       @text = text
+      @line, @column = line, column
     end
   end
 
-  class Text < Token; end
+  class Text < Token
+    def to_s
+      %Q{#<Text "#{text}"}
+    end
+  end
 
   class Ident < Token
     def self.pattern
       %r<\A(?:[[:alpha:]]|_)(?:[[[:alpha:]][[:digit:]]-_])*(?:!|\?)?>
+    end
+
+    def to_s
+      %Q{#<Ident "#{text}">}
     end
   end
 
