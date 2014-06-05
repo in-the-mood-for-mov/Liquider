@@ -44,6 +44,21 @@ describe Liquider::Shim::Tag do
     body = Liquid::Tag.body_parser.new('if').parse(source)
     expect(source.rest).to match(/\A\s+not reached\s+\z/)
   end
+
+  describe Liquider::Shim::Parser do
+    let(:legacy_tag) { double("Liquid::Tag", block?: false, method_defined?: false) }
+    let(:legacy_block) { double("Liquid::Tag", block?: true, method_defined?: false) }
+    let(:tags) {
+      { legacy_tag: legacy_tag, legacy_block: legacy_block, new_block: Liquider::Shim::Tag }
+    }
+
+    it "shims legacy tags" do
+      shimmed_tags = {
+        legacy_tag: Liquider::Shim::Tag, legacy_block: Liquider::Shim::Block, new_block: Liquider::Shim::Tag
+      }
+      expect(Liquider::Shim::Parser.shim_tag_classes(tags)).to eq(shimmed_tags)
+    end
+  end
 end
 
 __END__

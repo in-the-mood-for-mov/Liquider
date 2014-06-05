@@ -21,9 +21,22 @@ module Liquider
       def parse(body)
       end
 
+      def to_ast
+      end
+
       def self.render(tag, markup, tokens, options, context)
         parsed = Liquid::Template.tags[tag].parse(tag, markup, tokens, options)
         parsed.render(context)
+      end
+
+      def self.block?
+        false
+      end
+    end
+
+    class Block
+      def self.block?
+        true
       end
     end
 
@@ -41,6 +54,18 @@ module Liquider
         @markup = markup
         @options = options
         @body = body
+      end
+    end
+
+    class Parser
+      def self.shim_tag_classes(tags)
+        tags.each.with_object({}) do |(tag_name, tag_class), hash|
+          hash[tag_name] = if tag_class.method_defined?(:to_ast)
+            tag_class
+          else
+            tag_class.block? ? Liquider::Shim::Block : Liquider::Shim::Tag
+          end
+        end
       end
     end
 
@@ -85,12 +110,22 @@ module Liquider
 end
 
 class Liquid::Tag
+  def self.block?
+    false
+  end
+
   def self.markup_parser
     Liquider::Shim::MarkupParser
   end
 
   def self.body_parser
     Liquider::Shim::BodyParser
+  end
+end
+
+class Liquid::Block
+  def self.block?
+    true
   end
 end
 #puts ERB.new(File.read("./template.html.erb")).result(Shim::Context.new(vars).to_erb)
