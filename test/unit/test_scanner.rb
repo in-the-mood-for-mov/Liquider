@@ -2,20 +2,20 @@ require 'test_helper'
 
 class TestScanner < LiquiderTestCase
   def test_detects_single_tokens
-    scanner = Liquider::Scanner.new('asdf')
+    scanner = Liquider::Scanner.from_string('asdf')
     token = scanner.consume_first_of(Liquider::Tokens::Ident)
     assert_instance_of Liquider::Tokens::Ident, token
     assert_equal 'asdf', token.text
   end
 
   def test_consumes_single_tokens
-    scanner = Liquider::Scanner.new('asdf')
+    scanner = Liquider::Scanner.from_string('asdf')
     refute_nil scanner.consume_first_of(Liquider::Tokens::Ident)
     assert_nil scanner.consume_first_of(Liquider::Tokens::Ident)
   end
 
   def test_consumes_first_of
-    scanner = Liquider::Scanner.new('{{')
+    scanner = Liquider::Scanner.from_string('{{')
     assert_instance_of(
       Liquider::Tokens::MustacheOpen,
       scanner.consume_first_of(Liquider::Tokens::Ident, Liquider::Tokens::MustacheOpen)
@@ -23,14 +23,14 @@ class TestScanner < LiquiderTestCase
   end
 
   def test_can_skip_white_space
-    scanner = Liquider::Scanner.new('   asdf')
+    scanner = Liquider::Scanner.from_string('   asdf')
     assert_nil scanner.consume_first_of(Liquider::Tokens::Ident)
     scanner.consume_whitespace
     refute_nil scanner.consume_first_of(Liquider::Tokens::Ident)
   end
 
   def test_reports_column
-    scanner = Liquider::Scanner.new("a b000\n c00 d")
+    scanner = Liquider::Scanner.from_string("a b000\n c00 d")
     assert_token_starts_on_column 1, scanner.consume_first_of(Liquider::Tokens::Ident)
     scanner.consume_whitespace
     assert_token_starts_on_column 3, scanner.consume_first_of(Liquider::Tokens::Ident)

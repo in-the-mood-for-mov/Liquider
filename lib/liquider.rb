@@ -1,3 +1,7 @@
 require 'liquider/version.rb'
 require 'liquider/tokens.rb'
+require 'liquider/text_stream.rb'
 require 'liquider/scanner.rb'
+require 'liquider/ast.rb'
+require 'liquider/generated_parser.rb'
+require 'liquider/parser.rb'
