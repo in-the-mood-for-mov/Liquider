@@ -10,8 +10,8 @@ module Liquider::Ast
       elements == other.elements
     end
 
-    def visit(compiler)
-      compiler.on_document(self)
+    def visit(visitor)
+      visitor.on_document(self)
     end
   end
 
@@ -26,8 +26,8 @@ module Liquider::Ast
       text == other.text
     end
 
-    def visit(compiler)
-      compiler.on_text(self)
+    def visit(visitor)
+      visitor.on_text(self)
     end
   end
 
@@ -42,8 +42,8 @@ module Liquider::Ast
       expression == other.expression
     end
 
-    def visit(compiler)
-      compiler.on_mustache(self)
+    def visit(visitor)
+      visitor.on_mustache(self)
     end
   end
 
@@ -60,8 +60,8 @@ module Liquider::Ast
       op == other.op
     end
 
-    def visit(compiler)
-      compiler.on_binop(self)
+    def visit(visitor)
+      visitor.on_binop(self)
     end
   end
 
@@ -77,8 +77,8 @@ module Liquider::Ast
       property == other.property
     end
 
-    def visit(compiler)
-      compiler.on_call(self)
+    def visit(visitor)
+      visitor.on_call(self)
     end
   end
 
@@ -94,8 +94,8 @@ module Liquider::Ast
       property == other.property
     end
 
-    def visit(compiler)
-      compiler.on_index(self)
+    def visit(visitor)
+      visitor.on_index(self)
     end
   end
 
@@ -110,8 +110,8 @@ module Liquider::Ast
       name == other.name
     end
 
-    def visit(compiler)
-      compiler.on_symbol(self)
+    def visit(visitor)
+      visitor.on_symbol(self)
     end
   end
 
@@ -129,14 +129,14 @@ module Liquider::Ast
   end
 
   class StringNode < LiteralNode
-    def visit(compiler)
-      compiler.on_string(self)
+    def visit(visitor)
+      visitor.on_string(self)
     end
   end
 
   class NumberNode < LiteralNode
-    def visit(compiler)
-      compiler.on_number(self)
+    def visit(visitor)
+      visitor.on_number(self)
     end
   end
 
@@ -151,8 +151,8 @@ module Liquider::Ast
       expression == other.expression
     end
 
-    def visit(compiler)
-      compiler.on_parenthesis(self)
+    def visit(visitor)
+      visitor.on_parenthesis(self)
     end
   end
 end
