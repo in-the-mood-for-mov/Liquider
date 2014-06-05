@@ -1,31 +1,48 @@
 class Liquider::Scanner
   extend Forwardable
+  include Enumerable
+
+  END_OF_TOP_LEVEL_TEXT = Regexp.union(
+    /\z/,
+    Liquider::Tokens::MUSTACHE_OPEN.pattern,
+    Liquider::Tokens::TAG_OPEN.pattern,
+  )
 
   class << self
-    def from_string(s)
-      Liquider::Scanner.new(Liquider::TextStream.new(s))
+    def from_string(s, lexemes)
+      Liquider::Scanner.new(Liquider::TextStream.new(s), lexemes)
     end
   end
 
-  def initialize(text_stream)
-    @text_stream = text_stream
+  def initialize(string_scanner, lexemes)
+    @string_scanner = string_scanner
+    @lexemes = lexemes
   end
 
-  def consume_whitespace
-    @text_stream.scan(%r<\s*>)
-  end
+  def each
+    while !eos?
+      text = string_scanner.scan_until(END_OF_TOP_LEVEL_TEXT)
 
-  def consume_first_of(*token_classes)
-    return if eos?
-    token_classes.each do |token_class|
-      text, line, column = @text_stream.scan(token_class.pattern)
-      next unless text
-      return token_class.new(text, line, column)
+      yield Liquider::Tokens::Text.new(text, 0, 0).to_racc unless text.nil? || text.empty?
+
+      longest_match = lexemes.map {
+        |lexeme| lexeme.check(string_scanner)
+      }.max {
+        |match| match.text.length
+      }
+
+      unless longest_match.nil?
+        string_scanner.pos += longest_match.text.length
+        yield longest_match.to_racc unless longest_match.ignore?
+      end
     end
-    nil
   end
 
-  def_delegators :@text_stream, :eos?
+  private
+
+  attr_reader :string_scanner, :lexemes
+
+  def_delegators :string_scanner, :eos?
 end
 
 class Liquider::BlockScanner < Liquider::Scanner

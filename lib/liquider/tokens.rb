@@ -1,5 +1,4 @@
 module Liquider::Tokens
-
   class Token
     attr_reader :text, :line, :column
 
@@ -7,9 +6,71 @@ module Liquider::Tokens
       @text = text
       @line, @column = line, column
     end
+
+    def self.check(string_scanner)
+      match = string_scanner.check(pattern)
+      return NullToken.new(0, 0) if match.nil?
+      new(match.to_s, 0, 0)
+    end
+
+    def ignore?
+      false
+    end
+
+    def to_racc
+      [token_name, text]
+    end
+  end
+
+  class NullToken < Token
+    def self.pattern
+      %r<>
+    end
+
+    def initialize(line, column)
+      super '', line, column
+    end
+
+    def token_name
+      :NULL
+    end
+
+    def ignore?
+      true
+    end
+
+    def to_s
+      '#<Null>'
+    end
+  end
+
+  class WhiteSpace < Token
+    def self.pattern
+      %r<\s+>
+    end
+
+    def token_name
+      :WHITESPACE
+    end
+
+    def ignore?
+      true
+    end
+
+    def to_s
+      '#<WhiteSpace>'
+    end
   end
 
   class Text < Token
+    def self.pattern
+      %r<{%\s*raw\s*%}>
+    end
+
+    def token_name
+      :TEXT
+    end
+
     def to_s
       %Q{#<Text "#{text}"}
     end
@@ -20,68 +81,76 @@ module Liquider::Tokens
       %r<(?:[[:alpha:]]|_)(?:[[[:alpha:]][[:digit:]]-_])*(?:!|\?)?>
     end
 
+    def token_name
+      :IDENT
+    end
+
     def to_s
       %Q{#<Ident "#{text}">}
     end
   end
 
-  class TagOpen < Token
-    def self.pattern
-      %r<{%>
+  class Atom < Token
+    attr_reader :token_name
+
+    def initialize(token_name, text, line, column)
+      super text, line, column
+      @token_name = token_name
+    end
+
+    def to_s
+      "#<#{token_name}>"
     end
   end
 
-  class TagClose < Token
-    def self.pattern
-      %r<%}>
+  class AtomType
+    attr_reader :token_name, :pattern
+
+    def initialize(token_name, pattern)
+      @token_name, @pattern = token_name, pattern
+    end
+
+    def check(string_scanner)
+      match = string_scanner.check(pattern)
+      return NullToken.new(0, 0) if match.nil?
+      new(match.to_s, 0, 0)
+    end
+
+    def new(text, line, column)
+      Atom.new(token_name, text, line, column)
     end
   end
 
-  class MustacheOpen < Token
-    def self.pattern
-      %r<{{>
-    end
-  end
+  MUSTACHE_OPEN = AtomType.new(:MUSTACHEOPEN, %r<{{>)
+  TAG_OPEN = AtomType.new(:TAGOPEN, %r<{%>)
 
-  class MustacheClose < Token
-    def self.pattern
-      %r<}}>
-    end
-  end
-
-  class ParenOpen < Token
-    def self.pattern
-      %r<\(>
-    end
-  end
-
-  class ParenClose < Token
-    def self.pattern
-      %r<\)>
-    end
-  end
-
-  class Range < Token
-    def self.pattern
-      %r<\.\.>
-    end
-  end
-
-  class BinaryOp < Token
-    def self.pattern
-      %r{(?:(?:==)|(?:!=)|(?:>=)|(?:<=)|>|<|\+|-|\*|/)}
-    end
-  end
-
-  class Filter < Token
-    def self.pattern
-      %r<\|>
-    end
-  end
-
-  class Comma < Token
-    def self.pattern
-      %r<,>
-    end
-  end
+  ALL = [
+    WhiteSpace,
+    Text,
+    Ident,
+    AtomType.new(:NUMBER, %r<[0-9]+(?:\.[0-9]+)?>),
+    AtomType.new(:STRING, %r<"[^"]*">),
+    AtomType.new(:TRUE, %r<true>),
+    AtomType.new(:TRUE, %r<false>),
+    AtomType.new(:PIPE, %r<\|>),
+    AtomType.new(:DOT, %r<\.\.>),
+    AtomType.new(:DOTDOT, %r<\.\.>),
+    AtomType.new(:COLON, %r<:>),
+    AtomType.new(:COMMA, %r<,>),
+    AtomType.new(:TIMES, %r<\*>),
+    AtomType.new(:DIV, %r</>),
+    AtomType.new(:PLUS, %r<\+>),
+    AtomType.new(:MINUS, %r<->),
+    AtomType.new(:EQ, %r<==>),
+    AtomType.new(:NE, %r<!=>),
+    AtomType.new(:LT, %r{<}),
+    AtomType.new(:LE, %r{<=}),
+    AtomType.new(:GT, %r{>}),
+    AtomType.new(:GE, %r{>=}),
+    AtomType.new(:CONTAINS, %r<contains>),
+    AtomType.new(:MUSTACHECLOSE, %r<}}>),
+    AtomType.new(:TAGCLOSE, %r<%}>),
+    AtomType.new(:PARENTOPEN, %r<\(>),
+    AtomType.new(:PARENTCLOSE, %r<\)>),
+  ]
 end

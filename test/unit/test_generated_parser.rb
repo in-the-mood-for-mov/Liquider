@@ -33,13 +33,13 @@ class TestGeneratedParser < LiquiderTestCase
           Liquider::Ast::BinOpNode.new(
             Liquider::Ast::SymbolNode.new('foo'),
             Liquider::Ast::BinOpNode.new(
-              Liquider::Ast::LiteralNode.new('bar'),
+              Liquider::Ast::StringNode.new('bar'),
               Liquider::Ast::SymbolNode.new('baz'),
               :*,
             ),
             :+,
           ),
-          Liquider::Ast::LiteralNode.new(40),
+          Liquider::Ast::NumberNode.new(40),
           :<,
         ),
       ),

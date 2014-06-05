@@ -123,7 +123,7 @@ module Liquider::Ast
     end
 
     def ==(other)
-      other.instance_of?(LiteralNode) and
+      other.is_a?(LiteralNode) and
       value == other.value
     end
   end

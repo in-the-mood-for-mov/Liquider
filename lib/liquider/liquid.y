@@ -1,14 +1,15 @@
 class Liquider::GeneratedParser
 
 token PIPE DOT DOTDOT COLON COMMA
-token PLUS MINUS TIMES DIV
+token TIMES DIV
+token PLUS MINUS
 token EQ NE LT LE GT GE CONTAINS
 token MUSTACHEOPEN MUSTACHECLOSE
 token TAGOPEN TAGCLOSE
 token PARENOPEN PARENCLOSE
 token BRACKETOPEN BRACKETCLOSE
 
-token IDENT NUMBER STRING TEXT
+token TEXT IDENT NUMBER STRING TRUE FALSE
 
 rule
   Document:
@@ -42,7 +43,7 @@ rule
   | ComparisonExpression LE AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :<=) }
   | ComparisonExpression GT AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :>) }
   | ComparisonExpression GE AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :>=) }
-  | ComparisonExpression CONTAINS AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :in) }
+  | ComparisonExpression CONTAINS AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :contains) }
   ;
 
   AdditiveExpression:
@@ -67,5 +68,7 @@ rule
     IDENT { result = Ast::SymbolNode.new(val[0]) }
   | STRING { result = Ast::StringNode.new(val[0]) }
   | NUMBER { result = Ast::NumberNode.new(val[0]) }
+  | TRUE { result = Ast::BooleanNode.new(true) }
+  | FALSE { result = Ast::BooleanNode.new(false) }
   | PARENOPEN Expression PARENCLOSE { result = Ast::ParenthesisedNode.new(val[1]) }
   ;

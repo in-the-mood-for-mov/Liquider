@@ -9,13 +9,18 @@ class Liquider::TextStream
   end
 
   def scan(pattern)
-    line, column = @line, @column
     matched = @scanner.scan(pattern)
     adjust_position matched
-    [matched, line, column]
+    matched
   end
 
-  def_delegators :@scanner, :eos?
+  def scan_until(pattern)
+    matched = @scanner.scan_until(pattern)
+    adjust_position matched
+    matched
+  end
+
+  def_delegators :@scanner, :eos?, :check, :pos, :pos=
 
   private
 
