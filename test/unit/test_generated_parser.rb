@@ -7,9 +7,9 @@ class TestGeneratedParser < LiquiderTestCase
       [:IDENT, 'foo'],
       [:MUSTACHECLOSE, '%}'],
     )
-    ast = Liquider::Ast::Document.new([
-      Liquider::Ast::Mustache.new(
-        Liquider::Ast::Symbol.new('foo')
+    ast = Liquider::Ast::DocumentNode.new([
+      Liquider::Ast::MustacheNode.new(
+        Liquider::Ast::SymbolNode.new('foo')
       )
     ])
     assert_equal ast, parser.do_parse
@@ -27,19 +27,19 @@ class TestGeneratedParser < LiquiderTestCase
       [:NUMBER, 40],
       [:MUSTACHECLOSE, '%}'],
     )
-    ast = Liquider::Ast::Document.new([
-      Liquider::Ast::Mustache.new(
-        Liquider::Ast::BinOp.new(
-          Liquider::Ast::BinOp.new(
-            Liquider::Ast::Symbol.new('foo'),
-            Liquider::Ast::BinOp.new(
-              Liquider::Ast::Literal.new('bar'),
-              Liquider::Ast::Symbol.new('baz'),
+    ast = Liquider::Ast::DocumentNode.new([
+      Liquider::Ast::MustacheNode.new(
+        Liquider::Ast::BinOpNode.new(
+          Liquider::Ast::BinOpNode.new(
+            Liquider::Ast::SymbolNode.new('foo'),
+            Liquider::Ast::BinOpNode.new(
+              Liquider::Ast::LiteralNode.new('bar'),
+              Liquider::Ast::SymbolNode.new('baz'),
               :*,
             ),
             :+,
           ),
-          Liquider::Ast::Literal.new(40),
+          Liquider::Ast::LiteralNode.new(40),
           :<,
         ),
       ),

@@ -8,6 +8,7 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
+desc "Build the parser"
 task :parser do
   sh 'racc lib/liquider/liquid.y -o lib/liquider/generated_parser.rb'
 end

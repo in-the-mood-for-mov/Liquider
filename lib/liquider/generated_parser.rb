@@ -206,14 +206,14 @@ Racc_debug_parser = false
 
 module_eval(<<'.,.,', 'liquid.y', 14)
   def _reduce_1(val, _values, result)
-     result = Ast::Document.new([]) 
+     result = Ast::DocumentNode.new([]) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 15)
   def _reduce_2(val, _values, result)
-     result = Ast::Document.new([val].flatten) 
+     result = Ast::DocumentNode.new([val].flatten) 
     result
   end
 .,.,
@@ -229,7 +229,7 @@ module_eval(<<'.,.,', 'liquid.y', 20)
 
 module_eval(<<'.,.,', 'liquid.y', 24)
   def _reduce_5(val, _values, result)
-     result = Ast::Text.new(val[0]) 
+     result = Ast::TextNode.new(val[0]) 
     result
   end
 .,.,
@@ -238,7 +238,7 @@ module_eval(<<'.,.,', 'liquid.y', 24)
 
 module_eval(<<'.,.,', 'liquid.y', 29)
   def _reduce_7(val, _values, result)
-     result = Ast::Mustache.new(val[1]) 
+     result = Ast::MustacheNode.new(val[1]) 
     result
   end
 .,.,
@@ -249,49 +249,49 @@ module_eval(<<'.,.,', 'liquid.y', 29)
 
 module_eval(<<'.,.,', 'liquid.y', 38)
   def _reduce_10(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :==) 
+     result = Ast::BinOpNode.new(val[0], val[2], :==) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 39)
   def _reduce_11(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :!=) 
+     result = Ast::BinOpNode.new(val[0], val[2], :!=) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 40)
   def _reduce_12(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :<) 
+     result = Ast::BinOpNode.new(val[0], val[2], :<) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 41)
   def _reduce_13(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :<=) 
+     result = Ast::BinOpNode.new(val[0], val[2], :<=) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 42)
   def _reduce_14(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :>) 
+     result = Ast::BinOpNode.new(val[0], val[2], :>) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 43)
   def _reduce_15(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :>=) 
+     result = Ast::BinOpNode.new(val[0], val[2], :>=) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 44)
   def _reduce_16(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :in) 
+     result = Ast::BinOpNode.new(val[0], val[2], :in) 
     result
   end
 .,.,
@@ -300,14 +300,14 @@ module_eval(<<'.,.,', 'liquid.y', 44)
 
 module_eval(<<'.,.,', 'liquid.y', 49)
   def _reduce_18(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :+) 
+     result = Ast::BinOpNode.new(val[0], val[2], :+) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 50)
   def _reduce_19(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :-) 
+     result = Ast::BinOpNode.new(val[0], val[2], :-) 
     result
   end
 .,.,
@@ -316,14 +316,14 @@ module_eval(<<'.,.,', 'liquid.y', 50)
 
 module_eval(<<'.,.,', 'liquid.y', 55)
   def _reduce_21(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :*) 
+     result = Ast::BinOpNode.new(val[0], val[2], :*) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 56)
   def _reduce_22(val, _values, result)
-     result = Ast::BinOp.new(val[0], val[2], :'/') 
+     result = Ast::BinOpNode.new(val[0], val[2], :'/') 
     result
   end
 .,.,
@@ -332,42 +332,42 @@ module_eval(<<'.,.,', 'liquid.y', 56)
 
 module_eval(<<'.,.,', 'liquid.y', 61)
   def _reduce_24(val, _values, result)
-     result = Ast::Call.new(val[0], val[2]) 
+     result = Ast::CallNode.new(val[0], val[2]) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 62)
   def _reduce_25(val, _values, result)
-     result = Ast::Index.new(val[0], val[3]) 
+     result = Ast::IndexNode.new(val[0], val[3]) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 66)
   def _reduce_26(val, _values, result)
-     result = Ast::Symbol.new(val[0]) 
+     result = Ast::SymbolNode.new(val[0]) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 67)
   def _reduce_27(val, _values, result)
-     result = Ast::Literal.new(val[0]) 
+     result = Ast::LiteralNode.new(val[0]) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 68)
   def _reduce_28(val, _values, result)
-     result = Ast::Literal.new(val[0]) 
+     result = Ast::LiteralNode.new(val[0]) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 69)
   def _reduce_29(val, _values, result)
-     result = Ast::Parenthesised.new(val[1]) 
+     result = Ast::ParenthesisedNode.new(val[1]) 
     result
   end
 .,.,

@@ -1,8 +1,7 @@
 module Liquider::Ast
-  class Node
-  end
+  class DocumentNode
+    attr_reader :elements
 
-  class Document < Node
     def initialize(elements)
       @elements = elements
     end
@@ -11,12 +10,14 @@ module Liquider::Ast
       elements == other.elements
     end
 
-    protected
-
-    attr_reader :elements
+    def visit(compiler)
+      compiler.on_document(self)
+    end
   end
 
-  class Text < Node
+  class TextNode
+    attr_reader :text
+
     def initialize(text)
       @text = text
     end
@@ -24,13 +25,11 @@ module Liquider::Ast
     def ==(other)
       text == other.text
     end
-
-    protected
-
-    attr_reader :text
   end
 
-  class Mustache < Node
+  class MustacheNode
+    attr_reader :expression
+
     def initialize(expression)
       @expression = expression
     end
@@ -38,13 +37,11 @@ module Liquider::Ast
     def ==(other)
       expression == other.expression
     end
-
-    protected
-
-    attr_reader :expression
   end
 
-  class BinOp < Node
+  class BinOpNode
+    attr_reader :left, :right, :op
+
     def initialize(left, right, op)
       @left, @right, @op = left, right, op
     end
@@ -54,13 +51,11 @@ module Liquider::Ast
       right == other.right and
       op == other.op
     end
-
-    protected
-
-    attr_reader :left, :right, :op
   end
 
-  class Call < Node
+  class CallNode
+    attr_reader :target, :property
+
     def initialize(target, property)
       @target, @property = target, property
     end
@@ -69,13 +64,11 @@ module Liquider::Ast
       target == other.target and
       property == other.property
     end
-
-    protected
-
-    attr_reader :target, :property
   end
 
-  class Index < Node
+  class IndexNode
+    attr_reader :target, :property
+
     def initialize(target, property)
       @target, @property = target, property
     end
@@ -84,13 +77,11 @@ module Liquider::Ast
       target == other.target and
       property == other.property
     end
-
-    protected
-
-    attr_reader :target, :property
   end
 
-  class Symbol < Node
+  class SymbolNode
+    attr_reader :name
+
     def initialize(name)
       @name = name
     end
@@ -98,28 +89,24 @@ module Liquider::Ast
     def ==(other)
       name == other.name
     end
-
-    protected
-
-    attr_reader :name
   end
 
-  class Literal < Node
+  class LiteralNode
+    attr_reader :value
+
     def initialize(value)
       @value = value
     end
 
     def ==(other)
-      other.instance_of?(Literal) and
+      other.instance_of?(LiteralNode) and
       value == other.value
     end
-
-    protected
-
-    attr_reader :value
   end
 
-  class Parenthesised < Node
+  class ParenthesisedNode
+    attr_reader :expression
+
     def initialize(expression)
       @expression = expression
     end
@@ -127,9 +114,5 @@ module Liquider::Ast
     def ==(other)
       expression == other.expression
     end
-
-    protected
-
-    attr_reader :expression
   end
 end
