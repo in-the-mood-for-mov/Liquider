@@ -65,7 +65,7 @@ rule
 
   PrimaryExpression:
     IDENT { result = Ast::SymbolNode.new(val[0]) }
-  | STRING { result = Ast::LiteralNode.new(val[0]) }
-  | NUMBER { result = Ast::LiteralNode.new(val[0]) }
+  | STRING { result = Ast::StringNode.new(val[0]) }
+  | NUMBER { result = Ast::NumberNode.new(val[0]) }
   | PARENOPEN Expression PARENCLOSE { result = Ast::ParenthesisedNode.new(val[1]) }
   ;

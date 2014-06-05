@@ -104,6 +104,18 @@ module Liquider::Ast
     end
   end
 
+  class StringNode < LiteralNode
+    def visit(compiler)
+      compiler.on_string(self)
+    end
+  end
+
+  class NumberNode < LiteralNode
+    def visit(compiler)
+      compiler.on_number(self)
+    end
+  end
+
   class ParenthesisedNode
     attr_reader :expression
 
