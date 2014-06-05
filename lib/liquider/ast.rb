@@ -25,6 +25,10 @@ module Liquider::Ast
     def ==(other)
       text == other.text
     end
+
+    def visit(compiler)
+      compiler.on_text(self)
+    end
   end
 
   class MustacheNode
@@ -36,6 +40,10 @@ module Liquider::Ast
 
     def ==(other)
       expression == other.expression
+    end
+
+    def visit(compiler)
+      compiler.on_mustache(self)
     end
   end
 
@@ -51,6 +59,10 @@ module Liquider::Ast
       right == other.right and
       op == other.op
     end
+
+    def visit(compiler)
+      compiler.on_binop(self)
+    end
   end
 
   class CallNode
@@ -63,6 +75,10 @@ module Liquider::Ast
     def ==(other)
       target == other.target and
       property == other.property
+    end
+
+    def visit(compiler)
+      compiler.on_call(self)
     end
   end
 
@@ -77,6 +93,10 @@ module Liquider::Ast
       target == other.target and
       property == other.property
     end
+
+    def visit(compiler)
+      compiler.on_index(self)
+    end
   end
 
   class SymbolNode
@@ -88,6 +108,10 @@ module Liquider::Ast
 
     def ==(other)
       name == other.name
+    end
+
+    def visit(compiler)
+      compiler.on_symbol(self)
     end
   end
 
@@ -125,6 +149,10 @@ module Liquider::Ast
 
     def ==(other)
       expression == other.expression
+    end
+
+    def visit(compiler)
+      compiler.on_parenthesis(self)
     end
   end
 end
