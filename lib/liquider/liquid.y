@@ -11,7 +11,15 @@ token BRACKETOPEN BRACKETCLOSE
 
 token TEXT IDENT NUMBER STRING TRUE FALSE
 
+token GOTO_EXPRESSION GOTO_ARGLIST
+
 rule
+  Liquid:
+    Document
+  | GOTO_EXPRESSION Expression { result = val[1] }
+  # | GOTO_ARGLIST Arglist       { result = val[1] }
+  ;
+
   Document:
                         { result = Ast::DocumentNode.new([]) }
   | DocumentElementList { result = Ast::DocumentNode.new([val].flatten) }
@@ -24,11 +32,8 @@ rule
 
   DocumentElement:
     TEXT     { result = Ast::TextNode.new(val[0]) }
-  | Mustache
-  ;
-
-  Mustache:
-    MUSTACHEOPEN Expression MUSTACHECLOSE { result = Ast::MustacheNode.new(val[1]) }
+  | MUSTACHEOPEN Expression MUSTACHECLOSE { result = Ast::MustacheNode.new(val[1]) }
+  | Tag
   ;
 
   Expression:
@@ -37,25 +42,25 @@ rule
 
   ComparisonExpression:
     AdditiveExpression
-  | ComparisonExpression EQ AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :==) }
-  | ComparisonExpression NE AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :!=) }
-  | ComparisonExpression LT AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :<) }
-  | ComparisonExpression LE AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :<=) }
-  | ComparisonExpression GT AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :>) }
-  | ComparisonExpression GE AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :>=) }
-  | ComparisonExpression CONTAINS AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :contains) }
+  | ComparisonExpression EQ AdditiveExpression { result = Ast::BinOpNode.new(:==, val[0], val[2]) }
+  | ComparisonExpression NE AdditiveExpression { result = Ast::BinOpNode.new(:!=, val[0], val[2]) }
+  | ComparisonExpression LT AdditiveExpression { result = Ast::BinOpNode.new(:<, val[0], val[2]) }
+  | ComparisonExpression LE AdditiveExpression { result = Ast::BinOpNode.new(:<=, val[0], val[2]) }
+  | ComparisonExpression GT AdditiveExpression { result = Ast::BinOpNode.new(:>, val[0], val[2]) }
+  | ComparisonExpression GE AdditiveExpression { result = Ast::BinOpNode.new(:>=, val[0], val[2]) }
+  | ComparisonExpression CONTAINS AdditiveExpression { result = Ast::BinOpNode.new(:contains, val[0], val[2]) }
   ;
 
   AdditiveExpression:
     MultiplicativeExpression
-  | AdditiveExpression PLUS MultiplicativeExpression { result = Ast::BinOpNode.new(val[0], val[2], :+) }
-  | AdditiveExpression MINUS MultiplicativeExpression { result = Ast::BinOpNode.new(val[0], val[2], :-) }
+  | AdditiveExpression PLUS MultiplicativeExpression { result = Ast::BinOpNode.new(:+, val[0], val[2]) }
+  | AdditiveExpression MINUS MultiplicativeExpression { result = Ast::BinOpNode.new(:-, val[0], val[2], :-) }
   ;
 
   MultiplicativeExpression:
     CallExpression
-  | MultiplicativeExpression TIMES CallExpression { result = Ast::BinOpNode.new(val[0], val[2], :*) }
-  | MultiplicativeExpression DIV CallExpression { result = Ast::BinOpNode.new(val[0], val[2], :'/') }
+  | MultiplicativeExpression TIMES CallExpression { result = Ast::BinOpNode.new(:*, val[0], val[2]) }
+  | MultiplicativeExpression DIV CallExpression { result = Ast::BinOpNode.new(:'/', val[0], val[2]) }
   ;
 
   CallExpression:
@@ -71,4 +76,24 @@ rule
   | TRUE { result = Ast::BooleanNode.new(true) }
   | FALSE { result = Ast::BooleanNode.new(false) }
   | PARENOPEN Expression PARENCLOSE { result = Ast::ParenthesisedNode.new(val[1]) }
+  ;
+
+  Tag:
+    TagLeader TAGCLOSE
+  ;
+
+  TagLeader:
+    TAGOPEN IDENT {
+      parse_tag val[1]
+      # tag_class = tags[tag_name]
+      # raise LiquiderSyntaxError, "Unknown tag '#{tag_name}'." unless tag_class
+
+      # markup_parser = tag_class.markup_parser.new(tag_name, tags)
+      # markup = markup_parser.parse(MarkupView.new(source_scanner))
+      # return tag_class.build(tag_name, markup) unless tag_class.block?
+
+      # body_parser = tag_class.body_parser.new(tag_name, tags)
+      # body = body_parser.parse(BodyView.new(source_scanner)
+      # tag_class.build(tag_name, markup, body)
+    }
   ;
