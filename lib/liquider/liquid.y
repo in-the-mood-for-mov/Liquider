@@ -13,6 +13,8 @@ token TEXT IDENT NUMBER STRING TRUE FALSE
 
 token GOTO_EXPRESSION GOTO_ARGLIST
 
+token MARKUP BLOCKTAIL
+
 rule
   Liquid:
     Document
@@ -33,7 +35,7 @@ rule
   DocumentElement:
     TEXT     { result = Ast::TextNode.new(val[0]) }
   | MUSTACHEOPEN Expression MUSTACHECLOSE { result = Ast::MustacheNode.new(val[1]) }
-  | Tag
+  | Block
   ;
 
   Expression:
@@ -78,22 +80,27 @@ rule
   | PARENOPEN Expression PARENCLOSE { result = Ast::ParenthesisedNode.new(val[1]) }
   ;
 
-  Tag:
-    TagLeader TAGCLOSE
+  Block:
+    BlockHead Document BlockTail {
+      head, document, tail = val
+      unless head.tag_name == tail.tag_name
+        raise LiquiderSyntaxError.new(%Q<Expected "{% end#{head.tag_name} %}", but found "{% end#{tail.tag_name} %}".>)
+      end
+      parsed_markup = tags[head.tag_name].parse_markup(head.markup)
+      result = Ast::TagNode.new(head.tag_name, parsed_markup, document)
+    }
   ;
 
-  TagLeader:
-    TAGOPEN IDENT {
-      parse_tag val[1]
-      # tag_class = tags[tag_name]
-      # raise LiquiderSyntaxError, "Unknown tag '#{tag_name}'." unless tag_class
+  BlockHead:
+    TAGOPEN IDENT MARKUP TAGCLOSE {
+      _, tag_name, markup, _ = val
+      inject_token([:BLOCKTAIL, "{% end#{tag_name} %}"]) unless tag_with_name(tag_name).block?
+      result = BlockHead.new(tag_name, markup)
+    }
+  ;
 
-      # markup_parser = tag_class.markup_parser.new(tag_name, tags)
-      # markup = markup_parser.parse(MarkupView.new(source_scanner))
-      # return tag_class.build(tag_name, markup) unless tag_class.block?
-
-      # body_parser = tag_class.body_parser.new(tag_name, tags)
-      # body = body_parser.parse(BodyView.new(source_scanner)
-      # tag_class.build(tag_name, markup, body)
+  BlockTail:
+    BLOCKTAIL {
+      result = BlockTail.from_source(val[0])
     }
   ;

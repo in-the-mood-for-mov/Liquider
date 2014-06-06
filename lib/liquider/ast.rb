@@ -47,6 +47,25 @@ module Liquider::Ast
     end
   end
 
+  class TagNode
+    attr_reader :node_name, :markup, :body
+
+    def initialize(node_name, markup, body=DocumentNode.new([]))
+      @node_name, @markup, @body = node_name, markup, body
+    end
+
+    def ==(other)
+      other.is_a?(TagNode) &&
+      node_name == other.node_name &&
+      markup == other.markup &&
+      body == other.body
+    end
+
+    def visit(visitor)
+      visitor.on_tag(self)
+    end
+  end
+
   class BinOpNode
     attr_reader :left, :right, :op
 

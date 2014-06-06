@@ -30,17 +30,17 @@ class TestGeneratedParser < LiquiderTestCase
     ast = Liquider::Ast::DocumentNode.new([
       Liquider::Ast::MustacheNode.new(
         Liquider::Ast::BinOpNode.new(
+          :<,
           Liquider::Ast::BinOpNode.new(
+            :+,
             Liquider::Ast::SymbolNode.new('foo'),
             Liquider::Ast::BinOpNode.new(
+              :*,
               Liquider::Ast::StringNode.new('bar'),
               Liquider::Ast::SymbolNode.new('baz'),
-              :*,
             ),
-            :+,
           ),
           Liquider::Ast::NumberNode.new(40),
-          :<,
         ),
       ),
     ])
