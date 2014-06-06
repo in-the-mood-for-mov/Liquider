@@ -78,7 +78,7 @@ module Liquider::Tokens
 
   class Ident < Token
     def self.pattern
-      %r<(?:[[:alpha:]]|_)(?:[[[:alpha:]][[:digit:]]-_])*(?:!|\?)?>
+      %r<(?:[[:alpha:]]|_)(?:[[[:alpha:]][[:digit:]]\-_])*(?:!|\?)?>
     end
 
     def token_name
