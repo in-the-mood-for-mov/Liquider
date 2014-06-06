@@ -33,6 +33,46 @@ TAGS = {
 }
 
 describe Parser do
+  it 'can parse argument list' do
+    tokens = [
+      [:GOTOARGLIST, ''],
+      [:IDENT, 'foo'],
+      [:COMMA, ','],
+      [:STRING, 'bar'],
+      [:COMMA, ','],
+      [:IDENT, 'baz'],
+      [:COLON, ':'],
+      [:NUMBER, '25'],
+      [:PLUS, '+'],
+      [:NUMBER, '36'],
+      [:COMMA, ','],
+      [:IDENT, 'quux'],
+      [:COLON, ':'],
+      [:IDENT, 'asdf'],
+      [false, false],
+    ]
+    ast = Ast::ArgListNode.new(
+      [
+        Ast::SymbolNode.new('foo'),
+        Ast::StringNode.new('bar'),
+      ], [
+        Ast::OptionPairNode.new(
+          'baz',
+          Ast::BinOpNode.new(
+            :+,
+            Ast::NumberNode.new('25'),
+            Ast::NumberNode.new('36')
+          )
+        ),
+        Ast::OptionPairNode.new(
+          'quux',
+          Ast::SymbolNode.new('asdf'),
+        )
+      ]
+    )
+    expect(parse tokens).to eq(ast)
+  end
+
   it 'can parse blocks' do
     tokens = [
       [:TAGOPEN, '{%'],

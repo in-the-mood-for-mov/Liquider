@@ -66,6 +66,38 @@ module Liquider::Ast
     end
   end
 
+  class ArgListNode
+    attr_reader :positionals, :optionals
+
+    def initialize(positionals, optionals)
+      @positionals, @optionals = positionals, optionals
+    end
+
+    def ==(other)
+      other.is_a?(ArgListNode) &&
+      positionals == other.positionals &&
+      optionals == other.optionals
+    end
+
+    def visit(visitor)
+      visitor.on_arg_list(visitor)
+    end
+  end
+
+  class OptionPairNode
+    attr_reader :key, :value
+
+    def initialize(key, value)
+      @key, @value = key, value
+    end
+
+    def ==(other)
+      other.is_a?(OptionPairNode) &&
+      key == other.key &&
+      value == other.value
+    end
+  end
+
   class BinOpNode
     attr_reader :left, :right, :op
 

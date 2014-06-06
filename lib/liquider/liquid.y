@@ -11,39 +11,39 @@ token BRACKETOPEN BRACKETCLOSE
 
 token TEXT IDENT NUMBER STRING TRUE FALSE
 
-token GOTO_EXPRESSION GOTO_ARGLIST
+token GOTOEXPRESSION GOTOARGLIST
 
 token MARKUP BLOCKTAIL
 
 rule
-  Liquid:
-    Document
-  | GOTO_EXPRESSION Expression { result = val[1] }
-  # | GOTO_ARGLIST Arglist       { result = val[1] }
+  Liquid
+  : Document
+  | GOTOEXPRESSION Expression { result = val[1] }
+  | GOTOARGLIST ArgList       { result = val[1] }
   ;
 
-  Document:
-                        { result = Ast::DocumentNode.new([]) }
+  Document
+  :                     { result = Ast::DocumentNode.new([]) }
   | DocumentElementList { result = Ast::DocumentNode.new([val].flatten) }
   ;
 
-  DocumentElementList:
-    DocumentElement
+  DocumentElementList
+  : DocumentElement
   | DocumentElementList DocumentElement { result = val.flatten }
   ;
 
-  DocumentElement:
-    TEXT     { result = Ast::TextNode.new(val[0]) }
+  DocumentElement
+  : TEXT     { result = Ast::TextNode.new(val[0]) }
   | MUSTACHEOPEN Expression MUSTACHECLOSE { result = Ast::MustacheNode.new(val[1]) }
   | Block
   ;
 
-  Expression:
-    ComparisonExpression
+  Expression
+  : ComparisonExpression
   ;
 
-  ComparisonExpression:
-    AdditiveExpression
+  ComparisonExpression
+  : AdditiveExpression
   | ComparisonExpression EQ AdditiveExpression { result = Ast::BinOpNode.new(:==, val[0], val[2]) }
   | ComparisonExpression NE AdditiveExpression { result = Ast::BinOpNode.new(:!=, val[0], val[2]) }
   | ComparisonExpression LT AdditiveExpression { result = Ast::BinOpNode.new(:<, val[0], val[2]) }
@@ -53,26 +53,26 @@ rule
   | ComparisonExpression CONTAINS AdditiveExpression { result = Ast::BinOpNode.new(:contains, val[0], val[2]) }
   ;
 
-  AdditiveExpression:
-    MultiplicativeExpression
+  AdditiveExpression
+  : MultiplicativeExpression
   | AdditiveExpression PLUS MultiplicativeExpression { result = Ast::BinOpNode.new(:+, val[0], val[2]) }
   | AdditiveExpression MINUS MultiplicativeExpression { result = Ast::BinOpNode.new(:-, val[0], val[2], :-) }
   ;
 
-  MultiplicativeExpression:
-    CallExpression
+  MultiplicativeExpression
+  : CallExpression
   | MultiplicativeExpression TIMES CallExpression { result = Ast::BinOpNode.new(:*, val[0], val[2]) }
   | MultiplicativeExpression DIV CallExpression { result = Ast::BinOpNode.new(:'/', val[0], val[2]) }
   ;
 
-  CallExpression:
-    PrimaryExpression
+  CallExpression
+  : PrimaryExpression
   | CallExpression DOT IDENT { result = Ast::CallNode.new(val[0], val[2]) }
   | CallExpression BRACKETOPEN Expression BRACKETCLOSE { result = Ast::IndexNode.new(val[0], val[3]) }
   ;
 
-  PrimaryExpression:
-    IDENT { result = Ast::SymbolNode.new(val[0]) }
+  PrimaryExpression
+  : IDENT { result = Ast::SymbolNode.new(val[0]) }
   | STRING { result = Ast::StringNode.new(val[0]) }
   | NUMBER { result = Ast::NumberNode.new(val[0]) }
   | TRUE { result = Ast::BooleanNode.new(true) }
@@ -80,8 +80,34 @@ rule
   | PARENOPEN Expression PARENCLOSE { result = Ast::ParenthesisedNode.new(val[1]) }
   ;
 
-  Block:
-    BlockHead Document BlockTail {
+  ArgList
+  :                             { result = Ast::ArgListNode.new([], []) }
+  | PosArgList                  { result = Ast::ArgListNode.new(val[0], []) }
+  | OptArgList                  { result = Ast::ArgListNode.new([], val[0]) }
+  | PosArgList COMMA OptArgList { result = Ast::ArgListNode.new(val[0], val[2]) }
+  ;
+
+  PosArgList
+  : Expression
+  | PosArgList COMMA Expression { result = [val[0], val[2]].flatten }
+  ;
+
+  OptArgList
+  : OptArg                  { result = val }
+  | OptArgList COMMA OptArg {
+      opt_arg_list, _, opt_arg = val
+      if opt_arg_list.map(&:key).include?(opt_arg.key)
+        raise LiquiderSyntaxError.new(%Q<Duplicate key "#{opt_arg.key}" in option list.>)
+      end
+      result = val[0] + [val[2]]
+    }
+  ;
+
+  OptArg
+  : IDENT COLON Expression { result = Ast::OptionPairNode.new(val[0], val[2]) }
+
+  Block
+  : BlockHead Document BlockTail {
       head, document, tail = val
       unless head.tag_name == tail.tag_name
         raise LiquiderSyntaxError.new(%Q<Expected "{% end#{head.tag_name} %}", but found "{% end#{tail.tag_name} %}".>)
@@ -91,16 +117,14 @@ rule
     }
   ;
 
-  BlockHead:
-    TAGOPEN IDENT MARKUP TAGCLOSE {
+  BlockHead
+  : TAGOPEN IDENT MARKUP TAGCLOSE {
       _, tag_name, markup, _ = val
       inject_token([:BLOCKTAIL, "{% end#{tag_name} %}"]) unless tag_with_name(tag_name).block?
       result = BlockHead.new(tag_name, markup)
     }
   ;
 
-  BlockTail:
-    BLOCKTAIL {
-      result = BlockTail.from_source(val[0])
-    }
+  BlockTail
+  : BLOCKTAIL { result = BlockTail.from_source(val[0]) }
   ;
