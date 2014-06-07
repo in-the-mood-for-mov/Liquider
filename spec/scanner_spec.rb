@@ -82,9 +82,7 @@ describe Scanner do
       [:MARKUP, '2 + 2 == 4 '],
       [:TAGCLOSE, '%}'],
       [:TEXT, 'asdf'],
-      [:TAGOPEN, '{%'],
-      [:BLOCKTAIL, 'endbilly'],
-      [:TAGCLOSE, '%}'],
+      [:BLOCKTAIL, '{% endbilly %}'],
       [false, false],
     ])
   end

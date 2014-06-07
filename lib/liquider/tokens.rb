@@ -189,7 +189,7 @@ module Liquider::Tokens
     end
   end
 
-  BlockTail  = AtomType.new(:BLOCKTAIL, %r<end\w+>)
+  BlockTail  = AtomType.new(:BLOCKTAIL, %r<\{%\s*end\w+\s%\}>)
 
   class Eos
     class << self
@@ -255,6 +255,7 @@ module Liquider::Tokens
     AtomType.new(:MUSTACHECLOSE, %r<}}>),
     TagOpen,
     TagClose,
+    BlockTail,
     AtomType.new(:PARENTOPEN, %r<\(>),
     AtomType.new(:PARENTCLOSE, %r<\)>),
     Eos,
