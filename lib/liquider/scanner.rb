@@ -3,33 +3,32 @@ class Liquider::Scanner
   include Enumerable
 
   END_OF_TOP_LEVEL_TEXT = Regexp.union(
-    /\z/,
-    Liquider::Tokens::MUSTACHE_OPEN.pattern,
-    Liquider::Tokens::TAG_OPEN.pattern,
+    Liquider::Tokens::Eos.pattern,
+    Liquider::Tokens::MustacheOpen.pattern,
+    Liquider::Tokens::TagOpen.pattern,
   )
 
   class << self
-    def from_string(s, lexemes)
-      Liquider::Scanner.new(Liquider::TextStream.new(s), lexemes)
+    def from_string(s)
+      Scanner.new(TextStream.new(s))
     end
   end
 
-  def initialize(string_scanner, lexemes)
+  def initialize(string_scanner)
     @string_scanner = string_scanner
-    @lexemes = lexemes
   end
 
   def each
     while !eos?
       text = string_scanner.scan_until(END_OF_TOP_LEVEL_TEXT)
 
-      yield Liquider::Tokens::Text.new(text, 0, 0).to_racc unless text.nil? || text.empty?
+      yield Tokens::Text.new(text, 0, 0).to_racc unless text.nil? || text.empty?
       return if eos?
 
-      longest_match = lexemes.map {
-        |lexeme| lexeme.check(string_scanner)
-      }.max {
-        |match| match.text.length
+      longest_match = Liquider::Tokens::LEXEMES.map { |lexeme|
+        lexeme.check(string_scanner)
+      }.max { |match|
+        match.text.length
       }
 
       unless longest_match.nil?

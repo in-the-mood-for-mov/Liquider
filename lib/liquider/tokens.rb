@@ -1,16 +1,21 @@
 module Liquider::Tokens
-  class Token
-    attr_reader :text, :line, :column
-
-    def initialize(text, line, column)
-      @text = text
-      @line, @column = line, column
-    end
-
-    def self.check(string_scanner)
+  module Scannable
+    def check(string_scanner)
       match = string_scanner.check(pattern)
       return NullToken.new(0, 0) if match.nil?
       new(match.to_s, 0, 0)
+    end
+  end
+
+  class Token
+    attr_reader :text, :source_info
+
+    def initialize(text, source_info)
+      @text, @source_info = text, source_info
+    end
+
+    class << self
+      include Scannable
     end
 
     def ignore?
@@ -93,8 +98,8 @@ module Liquider::Tokens
   class Atom < Token
     attr_reader :token_name
 
-    def initialize(token_name, text, line, column)
-      super text, line, column
+    def initialize(token_name, text, source_info)
+      super text, source_info
       @token_name = token_name
     end
 
@@ -110,21 +115,29 @@ module Liquider::Tokens
       @token_name, @pattern = token_name, pattern
     end
 
-    def check(string_scanner)
-      match = string_scanner.check(pattern)
-      return NullToken.new(0, 0) if match.nil?
-      new(match.to_s, 0, 0)
-    end
+    include Scannable
 
-    def new(text, line, column)
-      Atom.new(token_name, text, line, column)
+    def new(text, source_info)
+      Atom.new(token_name, text, source_info)
     end
   end
 
-  MUSTACHE_OPEN = AtomType.new(:MUSTACHEOPEN, %r<{{>)
-  TAG_OPEN = AtomType.new(:TAGOPEN, %r<{%>)
+  class Eos
+    class << self
+      def pattern
+        %r<\z>
+      end
+    end
 
-  ALL = [
+    def to_racc
+      [false, false]
+    end
+  end
+
+  MustacheOpen = AtomType.new(:MUSTACHEOPEN, %r<{{>)
+  TagOpen = AtomType.new(:TAGOPEN, %r<{%>)
+
+  LEXEMES = [
     WhiteSpace,
     Text,
     Ident,
@@ -148,7 +161,9 @@ module Liquider::Tokens
     AtomType.new(:GT, %r{>}),
     AtomType.new(:GE, %r{>=}),
     AtomType.new(:CONTAINS, %r<contains>),
+    MustacheOpen,
     AtomType.new(:MUSTACHECLOSE, %r<}}>),
+    TagOpen,
     AtomType.new(:TAGCLOSE, %r<%}>),
     AtomType.new(:PARENTOPEN, %r<\(>),
     AtomType.new(:PARENTCLOSE, %r<\)>),

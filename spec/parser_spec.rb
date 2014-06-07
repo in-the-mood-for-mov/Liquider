@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'liquider'
 
 include Liquider
 
