@@ -16,15 +16,12 @@ class Liquider::ErbCompiler
   end
 
   def on_mustache(mustache)
-    @output << "<%= "
-    mustache.expression.visit(self)
-    @output << " %>"
+    wrap("<%= ", " %>") { mustache.expression.visit(self) }
   end
 
   def on_filter(filter)
-    @output << filter.message << "("
-    filter.arg_list.visit(self)
-    @output << ")"
+    @output << filter.message
+    wrap("(", ")") { filter.arg_list.visit(self) }
   end
 
   def on_arg_list(arg_list)
@@ -34,18 +31,19 @@ class Liquider::ErbCompiler
       @output << ", " unless positional == arg_list.positionals.last && !has_optionals
     end
     return unless has_optionals
-    @output << "{"
-    arg_list.optionals.each do |optional|
-      @output << "'" << optional.key << "' => "
-      optional.value.visit(self)
-      @output << ", " unless optional == arg_list.optionals.last
+    wrap("{", "}") do
+      arg_list.optionals.each do |optional|
+        wrap("'") { @output << optional.key }
+        @output << ' => '
+        optional.value.visit(self)
+        @output << ", " unless optional == arg_list.optionals.last
+      end
     end
-    @output << "}"
   end
 
   def on_binop(binop)
     binop.left.visit(self)
-    @output << " " << binop.op.to_s << " "
+    wrap(" ", " ") { @output << binop.op.to_s }
     binop.right.visit(self)
   end
 
@@ -68,18 +66,20 @@ class Liquider::ErbCompiler
 
   def on_index(index)
     index.target.visit(self)
-    @output << "["
-    index.property.visit(self)
-    @output << "]"
+    wrap("[", "]") { index.property.visit(self) }
   end
 
   def on_parenthesis(parenthesis)
-    @output << "("
-    parenthesis.expression.visit(self)
-    @output << ")"
+    wrap("(", ")") { parenthesis.expression.visit(self) }
   end
 
   private
+  def wrap(start, finish = nil)
+    @output << start
+    yield
+    @output << (finish || start)
+  end
+
   def escape_erb(text)
     text.gsub(/<%/, "<%%")
   end
