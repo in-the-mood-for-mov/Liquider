@@ -1,5 +1,7 @@
 require 'strscan'
 
+SourceInfo = Struct.new :line, :column
+
 class Liquider::TextStream
   extend Forwardable
 
@@ -20,12 +22,16 @@ class Liquider::TextStream
     matched
   end
 
+  def source_info
+    SourceInfo.new(@line, @column)
+  end
+
   def_delegators :@scanner, :eos?, :check, :pos, :pos=
 
   private
 
   def adjust_position(text)
-    return if text.nil?
+    return if text.nil? || text.empty?
 
     lines = text.split("\n")
     case lines.count

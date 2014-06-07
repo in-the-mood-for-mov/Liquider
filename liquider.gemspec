@@ -26,5 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "liquid", "~>3.0.0"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "pry-byebug"
+  spec.add_development_dependency "pry-stack_explorer"
   spec.add_development_dependency "racc", "~>1.4.11"
 end

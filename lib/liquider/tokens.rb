@@ -2,8 +2,8 @@ module Liquider::Tokens
   module Scannable
     def check(string_scanner)
       match = string_scanner.check(pattern)
-      return NullToken.new(0, 0) if match.nil?
-      new(match.to_s, 0, 0)
+      return NullToken.new('', nil) if match.nil?
+      new(match.to_s, nil)
     end
   end
 
@@ -18,12 +18,20 @@ module Liquider::Tokens
       include Scannable
     end
 
+    def weight
+      text.length
+    end
+
     def ignore?
       false
     end
 
     def to_racc
       [token_name, text]
+    end
+
+    def next_mode
+      :liquid
     end
   end
 
@@ -32,12 +40,16 @@ module Liquider::Tokens
       %r<>
     end
 
-    def initialize(line, column)
-      super '', line, column
+    def initialize(text, source_info)
+      super text, source_info
     end
 
     def token_name
       :NULL
+    end
+
+    def weight
+      -1
     end
 
     def ignore?
@@ -124,18 +136,39 @@ module Liquider::Tokens
 
   class Eos
     class << self
-      def pattern
-        %r<\z>
+      def check(text_stream)
+        if text_stream.eos?
+          self
+        else
+          NullToken.new('', 0)
+        end
+      end
+
+      def token_name
+        :EOS
+      end
+
+      def text
+        ''
+      end
+
+      def ignore?
+        false
+      end
+
+      def weight
+        0
+      end
+
+      def to_racc
+        [false, false]
+      end
+
+      def next_mode
+        :eos
       end
     end
-
-    def to_racc
-      [false, false]
-    end
   end
-
-  MustacheOpen = AtomType.new(:MUSTACHEOPEN, %r<{{>)
-  TagOpen = AtomType.new(:TAGOPEN, %r<{%>)
 
   LEXEMES = [
     WhiteSpace,
@@ -161,11 +194,12 @@ module Liquider::Tokens
     AtomType.new(:GT, %r{>}),
     AtomType.new(:GE, %r{>=}),
     AtomType.new(:CONTAINS, %r<contains>),
-    MustacheOpen,
+    AtomType.new(:MUSTACHEOPEN, %r<{{>),
     AtomType.new(:MUSTACHECLOSE, %r<}}>),
-    TagOpen,
+    AtomType.new(:TAGOPEN, %r<{%>),
     AtomType.new(:TAGCLOSE, %r<%}>),
     AtomType.new(:PARENTOPEN, %r<\(>),
     AtomType.new(:PARENTCLOSE, %r<\)>),
+    Eos,
   ]
 end

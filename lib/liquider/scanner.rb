@@ -1,46 +1,45 @@
 class Liquider::Scanner
-  extend Forwardable
   include Enumerable
 
-  END_OF_TOP_LEVEL_TEXT = Regexp.union(
-    Liquider::Tokens::Eos.pattern,
-    Liquider::Tokens::MustacheOpen.pattern,
-    Liquider::Tokens::TagOpen.pattern,
-  )
+  END_OF_TOP_LEVEL_TEXT = /\z|(?=\{\{)|(?=\{%)/
 
-  class << self
-    def from_string(s)
-      Scanner.new(TextStream.new(s))
-    end
+  def initialize(text_stream)
+    @text_stream = text_stream
+    @mode = :text
   end
 
-  def initialize(string_scanner)
-    @string_scanner = string_scanner
-  end
-
-  def each
-    while !eos?
-      text = string_scanner.scan_until(END_OF_TOP_LEVEL_TEXT)
-
-      yield Tokens::Text.new(text, 0, 0).to_racc unless text.nil? || text.empty?
-      return if eos?
-
-      longest_match = Liquider::Tokens::LEXEMES.map { |lexeme|
-        lexeme.check(string_scanner)
-      }.max { |match|
-        match.text.length
-      }
-
-      unless longest_match.nil?
-        string_scanner.pos += longest_match.text.length
-        yield longest_match.to_racc unless longest_match.ignore?
+  def each(&block)
+    loop do
+      case @mode
+      when :text then scan_text(&block)
+      when :liquid then scan_liquid(&block)
+      when :eos then return
       end
     end
   end
 
   private
 
-  attr_reader :string_scanner, :lexemes
+  attr_reader :text_stream
 
-  def_delegators :string_scanner, :eos?
+  def scan_text
+    source_info = text_stream.source_info
+    text = text_stream.scan_until(END_OF_TOP_LEVEL_TEXT)
+    yield Tokens::Text.new(text, source_info).to_racc unless text.nil? || text.empty?
+    @mode = :liquid
+  end
+
+  def scan_liquid
+    longest_match = Liquider::Tokens::LEXEMES.map { |lexeme|
+      lexeme.check(text_stream)
+    }.max_by { |match|
+      match.weight
+    }
+
+    return if longest_match.nil?
+
+    text_stream.pos += longest_match.text.length
+    @mode = longest_match.next_mode
+    yield longest_match.to_racc unless longest_match.ignore?
+  end
 end
