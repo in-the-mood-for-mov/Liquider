@@ -33,6 +33,44 @@ TAGS = {
 }
 
 describe Parser do
+  it 'parses symbols' do
+    tokens = [
+      [:GOTOEXPRESSION, ''],
+      [:IDENT, 'foo'],
+      [false, false]
+    ]
+    ast = Liquider::Ast::SymbolNode.new('foo')
+    expect(parse tokens).to eq(ast)
+  end
+
+  it 'parses expressions with various binary operators' do
+    tokens = [
+      [:GOTOEXPRESSION, ''],
+      [:IDENT, 'foo'],
+      [:PLUS, '+'],
+      [:STRING, 'bar'],
+      [:TIMES, '*'],
+      [:IDENT, 'baz'],
+      [:LT, '<'],
+      [:NUMBER, 40],
+      [false, false]
+    ]
+    ast = Liquider::Ast::BinOpNode.new(
+      :<,
+      Liquider::Ast::BinOpNode.new(
+        :+,
+        Liquider::Ast::SymbolNode.new('foo'),
+        Liquider::Ast::BinOpNode.new(
+          :*,
+          Liquider::Ast::StringNode.new('bar'),
+          Liquider::Ast::SymbolNode.new('baz'),
+        ),
+      ),
+      Liquider::Ast::NumberNode.new(40),
+    )
+    expect(parse tokens).to eq(ast)
+  end
+
   it 'can parse argument list' do
     tokens = [
       [:GOTOARGLIST, ''],
