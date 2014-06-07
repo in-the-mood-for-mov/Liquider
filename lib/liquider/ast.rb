@@ -66,6 +66,21 @@ module Liquider::Ast
     end
   end
 
+  class FilterNode
+    attr_reader :arg_list, :message
+
+    def initialize(message, arg_list)
+      @message = message
+      @arg_list = arg_list
+    end
+
+    def ==(other)
+      other.is_a?(FilterNode) &&
+      arg_list == other.arg_list &&
+      message == other.message
+    end
+  end
+
   class ArgListNode
     attr_reader :positionals, :optionals
 

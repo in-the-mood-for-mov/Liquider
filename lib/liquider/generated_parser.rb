@@ -10,92 +10,104 @@ module Liquider
 ##### State transition tables begin ###
 
 racc_action_table = [
-    47,    47,    47,     8,    76,    11,    75,    24,    43,    44,
-    34,     7,    19,    21,    20,    22,    23,     3,     4,    24,
-    70,    48,    48,    48,    19,    21,    20,    22,    23,    24,
-    43,    44,    43,    44,    26,    21,    20,    22,    23,    24,
-    43,    44,    45,    46,    19,    21,    20,    22,    23,    24,
-    45,    46,    43,    44,    19,    21,    20,    22,    23,    24,
-    43,    44,    43,    44,    19,    21,    20,    22,    23,    24,
-    43,    44,    45,    46,    26,    21,    20,    22,    23,    24,
-    35,    68,    56,    50,    19,    21,    20,    22,    23,    24,
-    51,    52,    53,    55,    19,    21,    20,    22,    23,    24,
-    12,    77,    52,    50,    19,    21,    20,    22,    23,    24,
-   nil,   nil,   nil,   nil,    19,    21,    20,    22,    23,    24,
-   nil,   nil,   nil,   nil,    19,    21,    20,    22,    23,    24,
-   nil,   nil,   nil,   nil,    19,    21,    20,    22,    23,    24,
-   nil,   nil,   nil,   nil,    19,    21,    20,    22,    23,    24,
-   nil,   nil,   nil,   nil,    19,    21,    20,    22,    23,    24,
-   nil,   nil,   nil,   nil,    19,    21,    20,    22,    23,    24,
-   nil,   nil,   nil,   nil,    19,    21,    20,    22,    23,    24,
-   nil,     8,   nil,    11,    19,    21,    20,    22,    23,     7,
-     8,   nil,    11,   nil,   nil,   nil,   nil,   nil,     7,    36,
-    37,    38,    39,    40,    41,    42 ]
+    36,    48,    36,    48,    36,    48,     8,     8,    11,    11,
+     8,    59,    11,    80,     7,     7,    44,    45,     7,    54,
+     3,     4,    49,    81,    49,    73,    49,    24,    44,    45,
+    44,    45,    19,    21,    20,    22,    23,    24,    44,    45,
+    46,    47,    27,    21,    20,    22,    23,    24,    44,    45,
+    46,    47,    19,    21,    20,    22,    23,    24,    44,    45,
+    46,    47,    27,    21,    20,    22,    23,    24,    44,    45,
+    44,    45,    27,    21,    20,    22,    23,    24,    79,    78,
+    71,    36,    19,    21,    20,    22,    23,    24,    51,    52,
+    53,    34,    19,    21,    20,    22,    23,    24,    56,    57,
+    36,    12,    19,    21,    20,    22,    23,    24,    36,    36,
+    53,    51,    19,    21,    20,    22,    23,    24,    35,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    24,   nil,   nil,
+   nil,   nil,    19,    21,    20,    22,    23,    37,    38,    39,
+    40,    41,    42,    43 ]
 
 racc_action_check = [
-    66,    67,    17,     0,    56,     0,    52,    45,    15,    15,
-    11,     0,    45,    45,    45,    45,    45,     0,     0,     8,
-    49,    66,    67,    17,     8,     8,     8,     8,     8,    51,
-    63,    63,    62,    62,    51,    51,    51,    51,    51,    50,
-    61,    61,    64,    64,    50,    50,    50,    50,    50,    48,
-    65,    65,    60,    60,    48,    48,    48,    48,    48,    46,
-    59,    59,    58,    58,    46,    46,    46,    46,    46,     4,
-    57,    57,    16,    16,     4,     4,     4,     4,     4,    44,
-    12,    47,    34,    26,    44,    44,    44,    44,    44,     3,
-    27,    28,    32,    33,     3,     3,     3,     3,     3,    24,
-     1,    69,    72,    75,    24,    24,    24,    24,    24,    43,
-   nil,   nil,   nil,   nil,    43,    43,    43,    43,    43,    37,
-   nil,   nil,   nil,   nil,    37,    37,    37,    37,    37,    41,
-   nil,   nil,   nil,   nil,    41,    41,    41,    41,    41,    40,
-   nil,   nil,   nil,   nil,    40,    40,    40,    40,    40,    39,
-   nil,   nil,   nil,   nil,    39,    39,    39,    39,    39,    38,
-   nil,   nil,   nil,   nil,    38,    38,    38,    38,    38,    36,
-   nil,   nil,   nil,   nil,    36,    36,    36,    36,    36,    42,
-   nil,    10,   nil,    10,    42,    42,    42,    42,    42,    10,
-     5,   nil,     5,   nil,   nil,   nil,   nil,   nil,     5,    14,
-    14,    14,    14,    14,    14,    14 ]
+    72,    70,    32,    17,    50,    69,     0,    10,     0,    10,
+     5,    36,     5,    59,     0,    10,    63,    63,     5,    32,
+     0,     0,    70,    72,    17,    50,    69,    43,    66,    66,
+    65,    65,    43,    43,    43,    43,    43,    80,    64,    64,
+    67,    67,    80,    80,    80,    80,    80,     3,    62,    62,
+    68,    68,     3,     3,     3,     3,     3,     4,    60,    60,
+    16,    16,     4,     4,     4,     4,     4,    52,    15,    15,
+    61,    61,    52,    52,    52,    52,    52,    51,    57,    53,
+    48,    26,    51,    51,    51,    51,    51,    49,    27,    28,
+    29,    11,    49,    49,    49,    49,    49,    24,    33,    34,
+    13,     1,    24,    24,    24,    24,    24,    39,    74,    75,
+    76,    78,    39,    39,    39,    39,    39,    46,    12,   nil,
+   nil,   nil,    46,    46,    46,    46,    46,    45,   nil,   nil,
+   nil,   nil,    45,    45,    45,    45,    45,    44,   nil,   nil,
+   nil,   nil,    44,    44,    44,    44,    44,     8,   nil,   nil,
+   nil,   nil,     8,     8,     8,     8,     8,    42,   nil,   nil,
+   nil,   nil,    42,    42,    42,    42,    42,    41,   nil,   nil,
+   nil,   nil,    41,    41,    41,    41,    41,    40,   nil,   nil,
+   nil,   nil,    40,    40,    40,    40,    40,    37,   nil,   nil,
+   nil,   nil,    37,    37,    37,    37,    37,    38,   nil,   nil,
+   nil,   nil,    38,    38,    38,    38,    38,    47,   nil,   nil,
+   nil,   nil,    47,    47,    47,    47,    47,    14,    14,    14,
+    14,    14,    14,    14 ]
 
 racc_action_pointer = [
-   -15,   100,   nil,    67,    47,   172,   nil,   nil,    -3,   nil,
-   163,   -17,    80,   nil,   188,    -1,    65,    -1,   nil,   nil,
-   nil,   nil,   nil,   nil,    77,   nil,    78,    84,    85,   nil,
-   nil,   nil,    73,    58,    48,   nil,   147,    97,   137,   127,
-   117,   107,   157,    87,    57,   -15,    37,    54,    27,    -3,
-    17,     7,   -21,   nil,   nil,   nil,   -17,    61,    53,    51,
-    43,    31,    23,    21,    35,    43,    -3,    -2,   nil,    76,
-   nil,   nil,    96,   nil,   nil,    98,   nil,   nil ]
+   -12,   101,   nil,    25,    35,    -8,   nil,   nil,   125,   nil,
+   -11,    64,   118,    98,   206,    59,    53,     0,   nil,   nil,
+   nil,   nil,   nil,   nil,    75,   nil,    79,    83,    83,    84,
+   nil,   nil,     0,    63,    65,   nil,   -16,   165,   175,    85,
+   155,   145,   135,     5,   115,   105,    95,   185,    53,    65,
+     2,    55,    45,    52,   nil,   nil,   nil,    57,   nil,     8,
+    49,    61,    39,     7,    29,    21,    19,    33,    43,     2,
+    -2,   nil,    -2,   nil,   106,   107,   104,   nil,   106,   nil,
+    15,   nil,   nil ]
 
 racc_action_default = [
-    -4,   -47,    -1,   -47,   -35,    -5,    -6,    -8,   -47,   -10,
-    -4,   -47,   -47,    -2,   -11,   -12,   -20,   -23,   -26,   -29,
-   -30,   -31,   -32,   -33,   -47,    -3,   -29,   -36,   -37,   -39,
-   -41,    -7,   -47,   -47,   -47,    78,   -47,   -47,   -47,   -47,
-   -47,   -47,   -47,   -47,   -47,   -47,   -47,   -47,   -47,   -47,
-   -47,   -47,   -47,    -9,   -44,   -46,   -47,   -13,   -14,   -15,
-   -16,   -17,   -18,   -19,   -21,   -22,   -24,   -25,   -27,   -47,
-   -34,   -43,   -38,   -40,   -42,   -47,   -45,   -28 ]
+    -4,   -50,    -1,   -50,   -38,    -5,    -6,    -8,   -50,   -10,
+    -4,   -50,   -50,    -2,   -11,   -15,   -23,   -26,   -29,   -32,
+   -33,   -34,   -35,   -36,   -50,    -3,   -42,   -32,   -39,   -40,
+   -44,    -7,   -50,   -50,   -50,    83,   -50,   -50,   -50,   -50,
+   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,   -50,
+   -50,   -50,   -50,   -50,    -9,   -47,   -49,   -50,   -12,   -13,
+   -16,   -17,   -18,   -19,   -20,   -21,   -22,   -24,   -25,   -27,
+   -28,   -30,   -50,   -37,   -46,   -43,   -41,   -45,   -50,   -48,
+   -38,   -31,   -14 ]
 
 racc_goto_table = [
-    13,    29,    28,     2,     1,    32,    57,    58,    59,    60,
-    61,    62,    63,    33,    66,    67,    64,    65,    31,    27,
-    25,    49,    74,    54,   nil,   nil,   nil,   nil,   nil,   nil,
+    25,    13,     2,    69,    70,     1,    32,    67,    68,    58,
+    31,    76,    33,    60,    61,    62,    63,    64,    65,    66,
+    77,    55,    50,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
    nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
-   nil,   nil,   nil,   nil,   nil,    69,   nil,    71,    73,    72 ]
+   nil,   nil,   nil,   nil,   nil,   nil,   nil,    72,   nil,    74,
+    75,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
+   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
+   nil,   nil,   nil,   nil,   nil,   nil,    82 ]
 
 racc_goto_check = [
-     3,     3,    14,     2,     1,     3,     9,     9,     9,     9,
-     9,     9,     9,     2,    11,    11,    10,    10,     6,    13,
-     4,     3,    15,    17,   nil,   nil,   nil,   nil,   nil,   nil,
+     4,     3,     2,    12,    12,     1,     3,    11,    11,     9,
+     6,    15,     2,    10,    10,    10,    10,    10,    10,    10,
+    16,    18,     3,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
    nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
-   nil,   nil,   nil,   nil,   nil,     3,   nil,     3,     3,    14 ]
+   nil,   nil,   nil,   nil,   nil,   nil,   nil,     3,   nil,     3,
+     3,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
+   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,   nil,
+   nil,   nil,   nil,   nil,   nil,   nil,     4 ]
 
 racc_goto_pointer = [
-   nil,     4,     3,    -3,    16,   nil,    13,   nil,   nil,   -30,
-   -27,   -31,   nil,    15,    -2,   -30,   nil,   -10 ]
+   nil,     5,     2,    -2,    -4,   nil,     5,   nil,   nil,   -27,
+   -24,   -37,   -43,   nil,   nil,   -41,   -33,   nil,   -12 ]
 
 racc_goto_default = [
-   nil,   nil,   nil,   nil,   nil,     5,     6,     9,    14,    15,
-    16,    17,    18,   nil,   nil,    30,    10,   nil ]
+   nil,   nil,   nil,    26,   nil,     5,     6,     9,    14,   nil,
+    15,    16,    17,    18,    28,    29,    30,    10,   nil ]
 
 racc_reduce_table = [
   0, 0, :racc_error,
@@ -110,45 +122,48 @@ racc_reduce_table = [
   3, 42, :_reduce_9,
   1, 42, :_reduce_none,
   1, 39, :_reduce_none,
+  3, 39, :_reduce_12,
+  1, 45, :_reduce_13,
+  3, 45, :_reduce_14,
   1, 44, :_reduce_none,
-  3, 44, :_reduce_13,
-  3, 44, :_reduce_14,
-  3, 44, :_reduce_15,
   3, 44, :_reduce_16,
   3, 44, :_reduce_17,
   3, 44, :_reduce_18,
   3, 44, :_reduce_19,
-  1, 45, :_reduce_none,
-  3, 45, :_reduce_21,
-  3, 45, :_reduce_22,
+  3, 44, :_reduce_20,
+  3, 44, :_reduce_21,
+  3, 44, :_reduce_22,
   1, 46, :_reduce_none,
   3, 46, :_reduce_24,
   3, 46, :_reduce_25,
   1, 47, :_reduce_none,
   3, 47, :_reduce_27,
-  4, 47, :_reduce_28,
-  1, 48, :_reduce_29,
-  1, 48, :_reduce_30,
-  1, 48, :_reduce_31,
-  1, 48, :_reduce_32,
-  1, 48, :_reduce_33,
-  3, 48, :_reduce_34,
-  0, 40, :_reduce_35,
-  1, 40, :_reduce_36,
-  1, 40, :_reduce_37,
-  3, 40, :_reduce_38,
-  1, 49, :_reduce_none,
-  3, 49, :_reduce_40,
-  1, 50, :_reduce_41,
-  3, 50, :_reduce_42,
-  3, 51, :_reduce_43,
-  3, 43, :_reduce_44,
-  4, 52, :_reduce_45,
-  1, 53, :_reduce_46 ]
+  3, 47, :_reduce_28,
+  1, 48, :_reduce_none,
+  3, 48, :_reduce_30,
+  4, 48, :_reduce_31,
+  1, 49, :_reduce_32,
+  1, 49, :_reduce_33,
+  1, 49, :_reduce_34,
+  1, 49, :_reduce_35,
+  1, 49, :_reduce_36,
+  3, 49, :_reduce_37,
+  0, 40, :_reduce_38,
+  1, 40, :_reduce_39,
+  1, 40, :_reduce_40,
+  3, 40, :_reduce_41,
+  1, 50, :_reduce_none,
+  3, 50, :_reduce_43,
+  1, 51, :_reduce_44,
+  3, 51, :_reduce_45,
+  3, 52, :_reduce_46,
+  3, 43, :_reduce_47,
+  4, 53, :_reduce_48,
+  1, 54, :_reduce_49 ]
 
-racc_reduce_n = 47
+racc_reduce_n = 50
 
-racc_shift_n = 78
+racc_shift_n = 83
 
 racc_token_table = {
   false => 0,
@@ -254,6 +269,7 @@ Racc_token_to_s_table = [
   "DocumentElement",
   "Block",
   "ComparisonExpression",
+  "Filter",
   "AdditiveExpression",
   "MultiplicativeExpression",
   "CallExpression",
@@ -327,193 +343,216 @@ module_eval(<<'.,.,', 'liquid.y', 36)
 
 # reduce 11 omitted
 
-# reduce 12 omitted
-
-module_eval(<<'.,.,', 'liquid.y', 46)
-  def _reduce_13(val, _values, result)
-     result = Ast::BinOpNode.new(:==, val[0], val[2]) 
-    result
-  end
-.,.,
-
-module_eval(<<'.,.,', 'liquid.y', 47)
-  def _reduce_14(val, _values, result)
-     result = Ast::BinOpNode.new(:!=, val[0], val[2]) 
-    result
-  end
-.,.,
-
-module_eval(<<'.,.,', 'liquid.y', 48)
-  def _reduce_15(val, _values, result)
-     result = Ast::BinOpNode.new(:<, val[0], val[2]) 
+module_eval(<<'.,.,', 'liquid.y', 43)
+  def _reduce_12(val, _values, result)
+          result = val[2]
+      result.arg_list.unshift(val[0])
+    
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 49)
-  def _reduce_16(val, _values, result)
-     result = Ast::BinOpNode.new(:<=, val[0], val[2]) 
+  def _reduce_13(val, _values, result)
+     result = FilterNode.new(val[0], ArgListNode.new([], [])) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 50)
+  def _reduce_14(val, _values, result)
+     result = FilterNode.new(val[0], val[2]) 
+    result
+  end
+.,.,
+
+# reduce 15 omitted
+
+module_eval(<<'.,.,', 'liquid.y', 55)
+  def _reduce_16(val, _values, result)
+     result = Ast::BinOpNode.new(:==, val[0], val[2]) 
+    result
+  end
+.,.,
+
+module_eval(<<'.,.,', 'liquid.y', 56)
   def _reduce_17(val, _values, result)
-     result = Ast::BinOpNode.new(:>, val[0], val[2]) 
+     result = Ast::BinOpNode.new(:!=, val[0], val[2]) 
     result
   end
 .,.,
-
-module_eval(<<'.,.,', 'liquid.y', 51)
-  def _reduce_18(val, _values, result)
-     result = Ast::BinOpNode.new(:>=, val[0], val[2]) 
-    result
-  end
-.,.,
-
-module_eval(<<'.,.,', 'liquid.y', 52)
-  def _reduce_19(val, _values, result)
-     result = Ast::BinOpNode.new(:contains, val[0], val[2]) 
-    result
-  end
-.,.,
-
-# reduce 20 omitted
 
 module_eval(<<'.,.,', 'liquid.y', 57)
-  def _reduce_21(val, _values, result)
-     result = Ast::BinOpNode.new(:+, val[0], val[2]) 
+  def _reduce_18(val, _values, result)
+     result = Ast::BinOpNode.new(:<, val[0], val[2]) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 58)
+  def _reduce_19(val, _values, result)
+     result = Ast::BinOpNode.new(:<=, val[0], val[2]) 
+    result
+  end
+.,.,
+
+module_eval(<<'.,.,', 'liquid.y', 59)
+  def _reduce_20(val, _values, result)
+     result = Ast::BinOpNode.new(:>, val[0], val[2]) 
+    result
+  end
+.,.,
+
+module_eval(<<'.,.,', 'liquid.y', 60)
+  def _reduce_21(val, _values, result)
+     result = Ast::BinOpNode.new(:>=, val[0], val[2]) 
+    result
+  end
+.,.,
+
+module_eval(<<'.,.,', 'liquid.y', 61)
   def _reduce_22(val, _values, result)
-     result = Ast::BinOpNode.new(:-, val[0], val[2], :-) 
+     result = Ast::BinOpNode.new(:contains, val[0], val[2]) 
     result
   end
 .,.,
 
 # reduce 23 omitted
 
-module_eval(<<'.,.,', 'liquid.y', 63)
+module_eval(<<'.,.,', 'liquid.y', 66)
   def _reduce_24(val, _values, result)
-     result = Ast::BinOpNode.new(:*, val[0], val[2]) 
+     result = Ast::BinOpNode.new(:+, val[0], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 64)
+module_eval(<<'.,.,', 'liquid.y', 67)
   def _reduce_25(val, _values, result)
-     result = Ast::BinOpNode.new(:'/', val[0], val[2]) 
+     result = Ast::BinOpNode.new(:-, val[0], val[2], :-) 
     result
   end
 .,.,
 
 # reduce 26 omitted
 
-module_eval(<<'.,.,', 'liquid.y', 69)
+module_eval(<<'.,.,', 'liquid.y', 72)
   def _reduce_27(val, _values, result)
+     result = Ast::BinOpNode.new(:*, val[0], val[2]) 
+    result
+  end
+.,.,
+
+module_eval(<<'.,.,', 'liquid.y', 73)
+  def _reduce_28(val, _values, result)
+     result = Ast::BinOpNode.new(:'/', val[0], val[2]) 
+    result
+  end
+.,.,
+
+# reduce 29 omitted
+
+module_eval(<<'.,.,', 'liquid.y', 78)
+  def _reduce_30(val, _values, result)
      result = Ast::CallNode.new(val[0], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 70)
-  def _reduce_28(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 79)
+  def _reduce_31(val, _values, result)
      result = Ast::IndexNode.new(val[0], val[3]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 74)
-  def _reduce_29(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 83)
+  def _reduce_32(val, _values, result)
      result = Ast::SymbolNode.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 75)
-  def _reduce_30(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 84)
+  def _reduce_33(val, _values, result)
      result = Ast::StringNode.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 76)
-  def _reduce_31(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 85)
+  def _reduce_34(val, _values, result)
      result = Ast::NumberNode.new(val[0]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 77)
-  def _reduce_32(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 86)
+  def _reduce_35(val, _values, result)
      result = Ast::BooleanNode.new(true) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 78)
-  def _reduce_33(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 87)
+  def _reduce_36(val, _values, result)
      result = Ast::BooleanNode.new(false) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 79)
-  def _reduce_34(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 88)
+  def _reduce_37(val, _values, result)
      result = Ast::ParenthesisedNode.new(val[1]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 83)
-  def _reduce_35(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 92)
+  def _reduce_38(val, _values, result)
      result = Ast::ArgListNode.new([], []) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 84)
-  def _reduce_36(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 93)
+  def _reduce_39(val, _values, result)
      result = Ast::ArgListNode.new(val[0], []) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 85)
-  def _reduce_37(val, _values, result)
-     result = Ast::ArgListNode.new([], val[0]) 
-    result
-  end
-.,.,
-
-module_eval(<<'.,.,', 'liquid.y', 86)
-  def _reduce_38(val, _values, result)
-     result = Ast::ArgListNode.new(val[0], val[2]) 
-    result
-  end
-.,.,
-
-# reduce 39 omitted
-
-module_eval(<<'.,.,', 'liquid.y', 91)
+module_eval(<<'.,.,', 'liquid.y', 94)
   def _reduce_40(val, _values, result)
-     result = [val[0], val[2]].flatten 
+     result = Ast::ArgListNode.new([], val[0]) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 95)
   def _reduce_41(val, _values, result)
+     result = Ast::ArgListNode.new(val[0], val[2]) 
+    result
+  end
+.,.,
+
+# reduce 42 omitted
+
+module_eval(<<'.,.,', 'liquid.y', 100)
+  def _reduce_43(val, _values, result)
+     result = [val[0], val[2]].flatten 
+    result
+  end
+.,.,
+
+module_eval(<<'.,.,', 'liquid.y', 104)
+  def _reduce_44(val, _values, result)
      result = val 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 97)
-  def _reduce_42(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 106)
+  def _reduce_45(val, _values, result)
           opt_arg_list, _, opt_arg = val
       if opt_arg_list.map(&:key).include?(opt_arg.key)
         raise LiquiderSyntaxError.new(%Q<Duplicate key "#{opt_arg.key}" in option list.>)
@@ -524,15 +563,15 @@ module_eval(<<'.,.,', 'liquid.y', 97)
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 106)
-  def _reduce_43(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 115)
+  def _reduce_46(val, _values, result)
      result = Ast::OptionPairNode.new(val[0], val[2]) 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 110)
-  def _reduce_44(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 120)
+  def _reduce_47(val, _values, result)
           head, document, tail = val
       unless head.tag_name == tail.tag_name
         raise LiquiderSyntaxError.new(%Q<Expected "{% end#{head.tag_name} %}", but found "{% end#{tail.tag_name} %}".>)
@@ -544,8 +583,8 @@ module_eval(<<'.,.,', 'liquid.y', 110)
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 121)
-  def _reduce_45(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 131)
+  def _reduce_48(val, _values, result)
           _, tag_name, markup, _ = val
       inject_token([:BLOCKTAIL, "{% end#{tag_name} %}"]) unless tag_with_name(tag_name).block?
       result = BlockHead.new(tag_name, markup)
@@ -554,8 +593,8 @@ module_eval(<<'.,.,', 'liquid.y', 121)
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 128)
-  def _reduce_46(val, _values, result)
+module_eval(<<'.,.,', 'liquid.y', 138)
+  def _reduce_49(val, _values, result)
      result = BlockTail.from_source(val[0]) 
     result
   end

@@ -147,6 +147,30 @@ describe Parser do
     expect(parse tokens).to eq(ast)
   end
 
+  it 'can parse filters' do
+    tokens = [
+      [:GOTOEXPRESSION, ''],
+      [:IDENT, "identifier"],
+      [:PIPE, "|"],
+      [:IDENT, "filter1"],
+      [:PIPE, "|"],
+      [:IDENT, "filter2"],
+      [false, false]
+    ]
+    ast = Ast::FilterNode.new(
+      "filter2",
+      Ast::ArgListNode.new([
+        Ast::FilterNode.new(
+          "filter1",
+          Ast::ArgListNode.new([
+            Ast::SymbolNode.new("identifier")
+          ], [])
+        )], []
+      )
+    )
+    expect(parse(tokens)).to eq(ast)
+  end
+
   private
 
   def parse(tokens)
