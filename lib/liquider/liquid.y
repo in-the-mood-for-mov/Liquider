@@ -42,13 +42,13 @@ rule
   : ComparisonExpression
   | Expression PIPE Filter {
       result = val[2]
-      result.arg_list.unshift(val[0])
+      result.arg_list.positionals.unshift(val[0])
     }
   ;
 
   Filter
-  : IDENT { result = FilterNode.new(val[0], ArgListNode.new([], [])) }
-  | IDENT COLON ArgList { result = FilterNode.new(val[0], val[2]) }
+  : IDENT { result = Ast::FilterNode.new(val[0], Ast::ArgListNode.new([], [])) }
+  | IDENT COLON ArgList { result = Ast::FilterNode.new(val[0], val[2]) }
   ;
 
   ComparisonExpression

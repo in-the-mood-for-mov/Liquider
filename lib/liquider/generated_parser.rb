@@ -346,7 +346,7 @@ module_eval(<<'.,.,', 'liquid.y', 36)
 module_eval(<<'.,.,', 'liquid.y', 43)
   def _reduce_12(val, _values, result)
           result = val[2]
-      result.arg_list.unshift(val[0])
+      result.arg_list.positionals.unshift(val[0])
     
     result
   end
@@ -354,14 +354,14 @@ module_eval(<<'.,.,', 'liquid.y', 43)
 
 module_eval(<<'.,.,', 'liquid.y', 49)
   def _reduce_13(val, _values, result)
-     result = FilterNode.new(val[0], ArgListNode.new([], [])) 
+     result = Ast::FilterNode.new(val[0], Ast::ArgListNode.new([], [])) 
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 50)
   def _reduce_14(val, _values, result)
-     result = FilterNode.new(val[0], val[2]) 
+     result = Ast::FilterNode.new(val[0], val[2]) 
     result
   end
 .,.,

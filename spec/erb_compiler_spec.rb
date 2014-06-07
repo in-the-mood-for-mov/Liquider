@@ -76,6 +76,25 @@ describe Liquider::ErbCompiler do
     end
   end
 
+  context FilterNode do
+    let(:target) {
+      FilterNode.new(
+        "filter2",
+        ArgListNode.new([
+          FilterNode.new(
+            "filter1",
+            ArgListNode.new([
+              SymbolNode.new("identifier")
+            ], [])
+          )], []
+        )
+      )
+    }
+    it 'unwraps filters correctly' do
+      expect(compiler.output).to eq("filter2(filter1(@context['identifier']))")
+    end
+  end
+
   context ParenthesisedNode do
     let(:target) {
       ParenthesisedNode.new(

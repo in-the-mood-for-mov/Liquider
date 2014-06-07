@@ -21,6 +21,24 @@ class Liquider::ErbCompiler
     @output << " %>"
   end
 
+  def on_filter(filter)
+    @output << filter.message << "("
+    filter.arg_list.visit(self)
+    @output << ")"
+  end
+
+  def on_arg_list(arg_list)
+    has_optionals = arg_list.optionals.any?
+    arg_list.positionals.each do |arg|
+      arg.visit(self)
+      @output << ", " unless arg == arg_list.positionals.last && !has_optionals
+    end
+    return unless has_optionals
+    arg_list.optionals.each do |optional|
+
+    end
+  end
+
   def on_binop(binop)
     binop.left.visit(self)
     @output << " " << binop.op.to_s << " "

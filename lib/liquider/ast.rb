@@ -79,6 +79,10 @@ module Liquider::Ast
       arg_list == other.arg_list &&
       message == other.message
     end
+
+    def visit(visitor)
+      visitor.on_filter(self)
+    end
   end
 
   class ArgListNode
@@ -95,7 +99,7 @@ module Liquider::Ast
     end
 
     def visit(visitor)
-      visitor.on_arg_list(visitor)
+      visitor.on_arg_list(self)
     end
   end
 
