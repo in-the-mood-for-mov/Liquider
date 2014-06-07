@@ -161,6 +161,22 @@ module Liquider::Tokens
     end
   end
 
+  class TagClose < Atom
+    class << self
+      def pattern
+        %r<%\}>
+      end
+    end
+
+    def initialize(text, source_info)
+      super :TAGCLOSE, text, source_info
+    end
+
+    def next_mode(current_mode)
+      :text
+    end
+  end
+
   class Markup
     attr_reader :text
 
@@ -172,6 +188,8 @@ module Liquider::Tokens
       [:MARKUP, text]
     end
   end
+
+  BlockTail  = AtomType.new(:BLOCKTAIL, %r<end\w+>)
 
   class Eos
     class << self
@@ -236,7 +254,7 @@ module Liquider::Tokens
     AtomType.new(:MUSTACHEOPEN, %r<{{>),
     AtomType.new(:MUSTACHECLOSE, %r<}}>),
     TagOpen,
-    AtomType.new(:TAGCLOSE, %r<%}>),
+    TagClose,
     AtomType.new(:PARENTOPEN, %r<\(>),
     AtomType.new(:PARENTCLOSE, %r<\)>),
     Eos,

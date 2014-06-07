@@ -41,7 +41,49 @@ describe Scanner do
     expect('{% foo asdf + 3 %}').to be_scanned_as([
       [:TAGOPEN, '{%'],
       [:IDENT, 'foo'],
-      [:MARKUP, ' asdf + 3 '],
+      [:MARKUP, 'asdf + 3 '],
+      [:TAGCLOSE, '%}'],
+      [false, false],
+    ])
+  end
+
+  it 'can scan tags surrounded by text' do
+    expect('asdf{% foo asdf + 3 %}jkl;').to be_scanned_as([
+      [:TEXT, 'asdf'],
+      [:TAGOPEN, '{%'],
+      [:IDENT, 'foo'],
+      [:MARKUP, 'asdf + 3 '],
+      [:TAGCLOSE, '%}'],
+      [:TEXT, 'jkl;'],
+      [false, false],
+    ])
+  end
+
+  it 'gracefully handles unterminated tag (before ident)' do
+    expect('{%').to be_scanned_as([
+      [:TAGOPEN, '{%'],
+      [false, false],
+    ])
+  end
+
+  it 'gracefully handles unterminated tag (after ident)' do
+    expect('{% unterminat').to be_scanned_as([
+      [:TAGOPEN, '{%'],
+      [:IDENT, 'unterminat'],
+      [:MARKUP, ''],
+      [false, false],
+    ])
+  end
+
+  it 'can scan blocks' do
+    expect('{% billy 2 + 2 == 4 %}asdf{% endbilly %}').to be_scanned_as([
+      [:TAGOPEN, '{%'],
+      [:IDENT, 'billy'],
+      [:MARKUP, '2 + 2 == 4 '],
+      [:TAGCLOSE, '%}'],
+      [:TEXT, 'asdf'],
+      [:TAGOPEN, '{%'],
+      [:BLOCKTAIL, 'endbilly'],
       [:TAGCLOSE, '%}'],
       [false, false],
     ])
