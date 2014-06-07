@@ -95,6 +95,28 @@ describe Liquider::ErbCompiler do
     end
   end
 
+  context ArgListNode do
+    let(:target) {
+      ArgListNode.new([
+        StringNode.new('arg1'),
+        SymbolNode.new('variable')
+      ], [
+        OptionPairNode.new(
+          'key',
+          StringNode.new('value')
+        ),
+        OptionPairNode.new(
+          'other_key',
+          SymbolNode.new('other_variable')
+        )
+      ])
+    }
+
+    it 'correctly outputs positionals and optionals' do
+      expect(compiler.output).to eq("'arg1', @context['variable'], {'key' => 'value', 'other_key' => @context['other_variable']}")
+    end
+  end
+
   context ParenthesisedNode do
     let(:target) {
       ParenthesisedNode.new(

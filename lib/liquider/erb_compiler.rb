@@ -29,14 +29,18 @@ class Liquider::ErbCompiler
 
   def on_arg_list(arg_list)
     has_optionals = arg_list.optionals.any?
-    arg_list.positionals.each do |arg|
-      arg.visit(self)
-      @output << ", " unless arg == arg_list.positionals.last && !has_optionals
+    arg_list.positionals.each do |positional|
+      positional.visit(self)
+      @output << ", " unless positional == arg_list.positionals.last && !has_optionals
     end
     return unless has_optionals
+    @output << "{"
     arg_list.optionals.each do |optional|
-
+      @output << "'" << optional.key << "' => "
+      optional.value.visit(self)
+      @output << ", " unless optional == arg_list.optionals.last
     end
+    @output << "}"
   end
 
   def on_binop(binop)
