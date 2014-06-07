@@ -36,4 +36,14 @@ describe Scanner do
       [false, false],
     ])
   end
+
+  it 'can scan tags' do
+    expect('{% foo asdf + 3 %}').to be_scanned_as([
+      [:TAGOPEN, '{%'],
+      [:IDENT, 'foo'],
+      [:MARKUP, ' asdf + 3 '],
+      [:TAGCLOSE, '%}'],
+      [false, false],
+    ])
+  end
 end

@@ -13,6 +13,9 @@ class Liquider::Scanner
       case @mode
       when :text then scan_text(&block)
       when :liquid then scan_liquid(&block)
+      when :markup then scan_markup(&block)
+      when :tag_leader then scan_liquid(&block)
+      when :tag_markup then scan_markup(&block)
       when :eos then return
       end
     end
@@ -25,7 +28,7 @@ class Liquider::Scanner
   def scan_text
     source_info = text_stream.source_info
     text = text_stream.scan_until(END_OF_TOP_LEVEL_TEXT)
-    yield Tokens::Text.new(text, source_info).to_racc unless text.nil? || text.empty?
+    yield Liquider::Tokens::Text.new(text, source_info).to_racc unless text.nil? || text.empty?
     @mode = :liquid
   end
 
@@ -39,7 +42,14 @@ class Liquider::Scanner
     return if longest_match.nil?
 
     text_stream.pos += longest_match.text.length
-    @mode = longest_match.next_mode
+    @mode = longest_match.next_mode(@mode)
     yield longest_match.to_racc unless longest_match.ignore?
+  end
+
+  def scan_markup
+    source_info = text_stream.source_info
+    text = text_stream.scan_until(/(?=%})|\z/)
+    yield Liquider::Tokens::Markup.new(text, source_info).to_racc
+    @mode = :liquid
   end
 end

@@ -30,7 +30,7 @@ module Liquider::Tokens
       [token_name, text]
     end
 
-    def next_mode
+    def next_mode(current_mode)
       :liquid
     end
   end
@@ -74,6 +74,10 @@ module Liquider::Tokens
       true
     end
 
+    def next_mode(current_mode)
+      current_mode
+    end
+
     def to_s
       '#<WhiteSpace>'
     end
@@ -100,6 +104,13 @@ module Liquider::Tokens
 
     def token_name
       :IDENT
+    end
+
+    def next_mode(current_mode)
+      case current_mode
+      when :tag_leader then :tag_markup
+      else super
+      end
     end
 
     def to_s
@@ -134,6 +145,34 @@ module Liquider::Tokens
     end
   end
 
+  class TagOpen < Atom
+    class << self
+      def pattern
+        %r<\{%>
+      end
+    end
+
+    def initialize(text, source_info)
+      super :TAGOPEN, text, source_info
+    end
+
+    def next_mode(current_mode)
+      :tag_leader
+    end
+  end
+
+  class Markup
+    attr_reader :text
+
+    def initialize(text, source_info)
+      @text = text
+    end
+
+    def to_racc
+      [:MARKUP, text]
+    end
+  end
+
   class Eos
     class << self
       def check(text_stream)
@@ -164,7 +203,7 @@ module Liquider::Tokens
         [false, false]
       end
 
-      def next_mode
+      def next_mode(current_mode)
         :eos
       end
     end
@@ -196,7 +235,7 @@ module Liquider::Tokens
     AtomType.new(:CONTAINS, %r<contains>),
     AtomType.new(:MUSTACHEOPEN, %r<{{>),
     AtomType.new(:MUSTACHECLOSE, %r<}}>),
-    AtomType.new(:TAGOPEN, %r<{%>),
+    TagOpen,
     AtomType.new(:TAGCLOSE, %r<%}>),
     AtomType.new(:PARENTOPEN, %r<\(>),
     AtomType.new(:PARENTCLOSE, %r<\)>),
