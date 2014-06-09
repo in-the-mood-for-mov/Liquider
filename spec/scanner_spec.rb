@@ -96,7 +96,16 @@ describe Scanner do
       [:IDENT, 'print'],
       [:MUSTACHECLOSE, '}}'],
       [:TEXT, '</h1>'],
-      [false, false]
+      [false, false],
+    ])
+  end
+
+  it "doesn't blow up if the last text is only a line return" do
+    expect("{{ toto }}\n").to be_scanned_as([
+      [:MUSTACHEOPEN, '{{'],
+      [:IDENT, 'toto'],
+      [:MUSTACHECLOSE, '}}'],
+      [false, false],
     ])
   end
 end

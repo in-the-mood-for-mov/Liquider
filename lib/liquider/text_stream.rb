@@ -35,6 +35,7 @@ class Liquider::TextStream
 
     lines = text.split("\n")
     case lines.count
+    when 0
     when 1 then @column += lines.first.size
     else
       @column = lines.last.size + 1
