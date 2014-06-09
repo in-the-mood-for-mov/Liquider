@@ -121,27 +121,32 @@ module Liquider::Tokens
   class Atom < Token
     attr_reader :token_name
 
-    def initialize(token_name, text, source_info)
+    def initialize(token_name, text, source_info, next_mode = nil)
       super text, source_info
       @token_name = token_name
+      @next_mode = next_mode
     end
 
     def to_s
       "#<#{token_name}>"
     end
+
+    def next_mode(*a)
+      @next_mode || super
+    end
   end
 
   class AtomType
-    attr_reader :token_name, :pattern
+    attr_reader :token_name, :pattern, :next_mode
 
-    def initialize(token_name, pattern)
-      @token_name, @pattern = token_name, pattern
+    def initialize(token_name, pattern, next_mode = nil)
+      @token_name, @pattern, @next_mode = token_name, pattern, next_mode
     end
 
     include Scannable
 
     def new(text, source_info)
-      Atom.new(token_name, text, source_info)
+      Atom.new(token_name, text, source_info, next_mode)
     end
   end
 
@@ -252,7 +257,7 @@ module Liquider::Tokens
     AtomType.new(:GE, %r{>=}),
     AtomType.new(:CONTAINS, %r<contains>),
     AtomType.new(:MUSTACHEOPEN, %r<{{>),
-    AtomType.new(:MUSTACHECLOSE, %r<}}>),
+    AtomType.new(:MUSTACHECLOSE, %r<}}>, :text),
     TagOpen,
     TagClose,
     BlockTail,
