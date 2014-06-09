@@ -86,4 +86,17 @@ describe Scanner do
       [false, false],
     ])
   end
+
+  it 'resets to text after mustaches' do
+    expect("<h1>{{ toto | print }}</h1>").to be_scanned_as([
+      [:TEXT, '<h1>'],
+      [:MUSTACHEOPEN, '{{'],
+      [:IDENT, 'toto'],
+      [:PIPE, '|'],
+      [:IDENT, 'print'],
+      [:MUSTACHECLOSE, '}}'],
+      [:TEXT, '</h1>'],
+      [false, false]
+    ])
+  end
 end
