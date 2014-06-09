@@ -26,12 +26,34 @@ describe Scanner do
     ])
   end
 
-  it 'can scan expressions' do
+  it 'can scan mustaches' do
     expect('{{ foo + 5 }}').to be_scanned_as([
       [:MUSTACHEOPEN, '{{'],
       [:IDENT, 'foo'],
       [:PLUS, '+'],
       [:NUMBER, '5'],
+      [:MUSTACHECLOSE, '}}'],
+      [false, false],
+    ])
+  end
+
+  it 'can can mustaches surounded by text' do
+    expect("<h1>{{ toto | print }}</h1>").to be_scanned_as([
+      [:TEXT, '<h1>'],
+      [:MUSTACHEOPEN, '{{'],
+      [:IDENT, 'toto'],
+      [:PIPE, '|'],
+      [:IDENT, 'print'],
+      [:MUSTACHECLOSE, '}}'],
+      [:TEXT, '</h1>'],
+      [false, false],
+    ])
+  end
+
+  it 'can scan mustaches with trailling newline' do
+    expect("{{ toto }}\n").to be_scanned_as([
+      [:MUSTACHEOPEN, '{{'],
+      [:IDENT, 'toto'],
       [:MUSTACHECLOSE, '}}'],
       [false, false],
     ])
@@ -83,28 +105,6 @@ describe Scanner do
       [:TAGCLOSE, '%}'],
       [:TEXT, 'asdf'],
       [:BLOCKTAIL, '{% endbilly %}'],
-      [false, false],
-    ])
-  end
-
-  it 'resets to text after mustaches' do
-    expect("<h1>{{ toto | print }}</h1>").to be_scanned_as([
-      [:TEXT, '<h1>'],
-      [:MUSTACHEOPEN, '{{'],
-      [:IDENT, 'toto'],
-      [:PIPE, '|'],
-      [:IDENT, 'print'],
-      [:MUSTACHECLOSE, '}}'],
-      [:TEXT, '</h1>'],
-      [false, false],
-    ])
-  end
-
-  it "doesn't blow up if the last text is only a line return" do
-    expect("{{ toto }}\n").to be_scanned_as([
-      [:MUSTACHEOPEN, '{{'],
-      [:IDENT, 'toto'],
-      [:MUSTACHECLOSE, '}}'],
       [false, false],
     ])
   end
