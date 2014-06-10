@@ -28,7 +28,7 @@ class Liquider::Parser < Liquider::GeneratedParser
 
   def tag_with_name(name)
     tag = tags[name]
-    raise LiquiderSyntaxError.new(%Q<Unknown tag "#{name}".>) unless tag
+    raise Liquider::LiquiderSyntaxError.new(%Q<Unknown tag "#{name}".>) unless tag
     tag
   end
 end
