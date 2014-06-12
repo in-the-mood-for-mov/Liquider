@@ -3,6 +3,7 @@ require 'liquider'
 require 'liquider/erb_compiler'
 
 include Liquider::Ast
+include Liquider::ErbCompiler::Ast
 
 describe Liquider::ErbCompiler do
   let(:compiler) { Liquider::ErbCompiler.new }
@@ -158,6 +159,27 @@ describe Liquider::ErbCompiler do
       expect(compiler.output).to eq("<%= @context['foo'] + 'bar' * @context['baz'] < 40 %>this is sparta")
     end
   end
-end
 
+  context HtmlTag do
+    let(:target) {
+      HtmlTag.new(:input, [OptionPairNode.new("type", SymbolNode.new("text"))])
+    }
+    it 'renders tags with attributes' do
+      expect(compiler.output).to eq('<input type="<%= @context[\'text\'] %>"/>')
+    end
+  end
+
+  context HtmlBlock do
+    let(:target) {
+      HtmlBlock.new(
+        :div,
+        [OptionPairNode.new("class", StringNode.new("content"))],
+        TextNode.new("a body")
+      )
+    }
+    it 'renders blocks with attributes' do
+      expect(compiler.output).to eq("<div class='content'>a body</div>")
+    end
+  end
+end
 
