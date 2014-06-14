@@ -160,18 +160,18 @@ describe Liquider::ErbCompiler do
     end
   end
 
-  context HtmlTag do
+  context HtmlTagNode do
     let(:target) {
-      HtmlTag.new(:input, [OptionPairNode.new("type", SymbolNode.new("text"))])
+      HtmlTagNode.new(:input, [OptionPairNode.new("type", SymbolNode.new("text"))])
     }
     it 'renders tags with attributes' do
       expect(compiler.output).to eq('<input type="<%= @context[\'text\'] %>"/>')
     end
   end
 
-  context HtmlBlock do
+  context HtmlBlockNode do
     let(:target) {
-      HtmlBlock.new(
+      HtmlBlockNode.new(
         :div,
         [OptionPairNode.new("class", StringNode.new("content"))],
         TextNode.new("a body")
@@ -179,6 +179,42 @@ describe Liquider::ErbCompiler do
     }
     it 'renders blocks with attributes' do
       expect(compiler.output).to eq("<div class='content'>a body</div>")
+    end
+  end
+
+  context CaptureNode do
+    let(:target) {
+      CaptureNode.new("toto", HtmlTagNode.new(:div, []))
+    }
+    it 'captures the body of the div' do
+      expect(compiler.output).to eq("<% toto = capture do %><div/><% end %>")
+    end
+  end
+
+  context LocalAssignNode do
+    let(:target) {
+      LocalAssignNode.new("toto", StringNode.new("titi"))
+    }
+    it 'assigns the variable to the local context' do
+      expect(compiler.output).to eq("<% toto = 'titi' %>")
+    end
+  end
+
+  context LocalFetchNode do
+    let(:target) {
+      MustacheNode.new(LocalFetchNode.new("toto"))
+    }
+    it 'renders correctly' do
+      expect(compiler.output).to eq("<%= toto %>")
+    end
+  end
+
+  context ContextStackNode do
+    let(:target) {
+      ContextStackNode.new(TextNode.new("text"))
+    }
+    it 'stacks context' do
+      expect(compiler.output).to eq("<% @context.stack do %>text<% end %>")
     end
   end
 end

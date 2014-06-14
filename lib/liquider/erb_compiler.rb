@@ -16,7 +16,7 @@ class Liquider::ErbCompiler
   end
 
   def on_mustache(mustache)
-    wrap('<%= ', ' %>') { mustache.expression.visit(self) }
+    erb_tag(output: true) { mustache.expression.visit(self) }
   end
 
   def on_filter(filter)
@@ -85,6 +85,39 @@ class Liquider::ErbCompiler
     @output << '</' << block.tag_name.to_s << '>'
   end
 
+  def on_capture(capture)
+    erb_tag {
+      @output << capture.name << " = capture do"
+    }
+    capture.body.visit(self)
+    erb_tag {
+      @output << "end"
+    }
+  end
+
+  def on_local_assign(local_assign)
+    erb_tag {
+      @output << local_assign.name << ' = '
+      local_assign.value.visit(self)
+    }
+  end
+
+  def on_local_fetch(local_fetch)
+    @output << local_fetch.name
+  end
+
+  def on_context_stack(context_stack)
+    erb_tag {
+      @output << "@context.stack do"
+    }
+
+    context_stack.body.visit(self)
+
+    erb_tag {
+      @output << "end"
+    }
+  end
+
   private
   def wrap(start, finish = nil)
     @output << start
@@ -99,11 +132,23 @@ class Liquider::ErbCompiler
       if opt_pair.value.kind_of?(LiteralNode)
         opt_pair.value.visit(self)
       else
-        @output << '"<%= '
-        opt_pair.value.visit(self)
-        @output << ' %>"'
+        wrap('"') {
+          erb_tag(output: true) {
+            opt_pair.value.visit(self)
+          }
+        }
       end
     end
+  end
+
+  def erb_tag(output: false)
+    raise Liquider::LiquiderSyntaxError, "ERB statement already open" if @erb_open
+    @erb_open = true
+    @output << "<%#{'=' if output} "
+    yield
+    @output << " %>"
+  ensure
+    @erb_open = false
   end
 
   def escape_erb(text)
@@ -111,7 +156,7 @@ class Liquider::ErbCompiler
   end
 
   module Ast
-    class HtmlBlock
+    class HtmlBlockNode
       attr_reader :tag_name, :opt_list, :body
 
       def initialize(tag_name, opt_list, body)
@@ -125,7 +170,7 @@ class Liquider::ErbCompiler
       end
     end
 
-    class HtmlTag
+    class HtmlTagNode
       attr_reader :tag_name, :opt_list
 
       def initialize(tag_name, opt_list)
@@ -138,7 +183,7 @@ class Liquider::ErbCompiler
       end
     end
 
-    class LocalAssign
+    class LocalAssignNode
       attr_reader :name, :value
 
       def initialize(name, value)
@@ -147,11 +192,11 @@ class Liquider::ErbCompiler
       end
 
       def visit(visitor)
-        visitor.local_assign(self)
+        visitor.on_local_assign(self)
       end
     end
 
-    class LocalFetch
+    class LocalFetchNode
       attr_reader :name
 
       def initialize(name)
@@ -159,11 +204,24 @@ class Liquider::ErbCompiler
       end
 
       def visit(visitor)
-        visitor.local_fetch(self)
+        visitor.on_local_fetch(self)
       end
     end
 
-    class Capture
+    class CaptureNode
+      attr_reader :name, :body
+
+      def initialize(name, body)
+        @name = name
+        @body = body
+      end
+
+      def visit(visitor)
+        visitor.on_capture(self)
+      end
+    end
+
+    class ContextStackNode
       attr_reader :body
 
       def initialize(body)
@@ -171,13 +229,7 @@ class Liquider::ErbCompiler
       end
 
       def visit(visitor)
-        visitor.capture(self)
-      end
-    end
-
-    class ContextStack
-      def visit(visitor)
-        visitor.context_stack(self)
+        visitor.on_context_stack(self)
       end
     end
   end
