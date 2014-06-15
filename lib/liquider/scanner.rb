@@ -41,6 +41,7 @@ class Liquider::Scanner
     RawTextToken,
     MustacheOpenToken,
     TagOpenToken,
+    BlockTailToken,
     EosToken
   ].freeze
 
@@ -84,7 +85,6 @@ class Liquider::Scanner
   end
 
   TAG_LEADER_TOKENS = [
-    BlockTailToken,
     IdentToken,
     EosToken,
   ].freeze

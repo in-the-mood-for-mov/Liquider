@@ -36,9 +36,9 @@ module Liquider::Tokens
     end
   end
 
-  BlockTailToken = Token.new_type(:BLOCKTAIL, Regexp.new('end' + IdentToken.pattern.source)) do
+  BlockTailToken = Token.new_type(:BLOCKTAIL, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
     def next_mode(current_mode)
-      :liquid
+      :text
     end
   end
 
