@@ -1,7 +1,6 @@
 class Liquider::Scanner
   include Enumerable
-
-  END_OF_TOP_LEVEL_TEXT = /\z|(?=\{\{)|(?=\{%)/
+  include Liquider::Tokens
 
   def initialize(text_stream)
     @text_stream = text_stream
@@ -10,13 +9,12 @@ class Liquider::Scanner
 
   def each(&block)
     loop do
-      eat_whitespace
       case @mode
       when :text then scan_text(&block)
+      when :enter_liquid then scan_enter_liquid(&block)
+      when :tag_leader then scan_tag_leader(&block)
       when :liquid then scan_liquid(&block)
       when :markup then scan_markup(&block)
-      when :tag_leader then scan_tag_leader(&block)
-      when :tag_markup then scan_markup(&block)
       when :eos then return
       end
     end
@@ -27,45 +25,95 @@ class Liquider::Scanner
   attr_reader :text_stream
 
   def eat_whitespace
-    text_stream.scan(Liquider::Tokens::WhiteSpace.pattern)
+    scan_tokens([WhiteSpace]) { |token| }
   end
 
-  def scan_text
-    source_info = text_stream.source_info
-    text = text_stream.scan_until(END_OF_TOP_LEVEL_TEXT)
-    yield Liquider::Tokens::Text.new(text, source_info).to_racc unless text.nil? || text.empty?
-    @mode = :liquid
+  TEXT_TOKENS = [
+    TextToken,
+    EosToken,
+  ].freeze
+
+  def scan_text(&block)
+    scan_tokens(TEXT_TOKENS, &block)
   end
+
+  ENTER_LIQUID_TOKENS = [
+    RawTextToken,
+    MustacheOpenToken,
+    TagOpenToken,
+    EosToken
+  ].freeze
+
+  def scan_enter_liquid(&block)
+    scan_tokens(ENTER_LIQUID_TOKENS, &block)
+  end
+
+  LIQUID_TOKENS = [
+    RawTextToken,
+    IdentToken,
+    NumberToken,
+    StringToken,
+    TrueToken,
+    FalseToken,
+    PipeToken,
+    DotToken,
+    DoubleDotToken,
+    ColonToken,
+    CommaToken,
+    TimesToken,
+    DivToken,
+    PlusToken,
+    MinusToken,
+    EqToken,
+    NeToken,
+    LtToken,
+    LeToken,
+    GtToken,
+    GeToken,
+    ContainsToken,
+    ParenOpenToken,
+    ParenCloseToken,
+    MustacheCloseToken,
+    TagCloseToken,
+    EosToken,
+  ].freeze
 
   def scan_liquid(&block)
-    scan_tokens(Liquider::Tokens::LEXEMES, &block)
+    eat_whitespace
+    scan_tokens(LIQUID_TOKENS, &block)
   end
+
+  TAG_LEADER_TOKENS = [
+    BlockTailToken,
+    IdentToken,
+    EosToken,
+  ].freeze
 
   def scan_tag_leader(&block)
-    scan_tokens([
-      Liquider::Tokens::BlockTail,
-      Liquider::Tokens::Ident,
-    ], &block)
+    eat_whitespace
+    scan_tokens(TAG_LEADER_TOKENS, &block)
   end
 
-  def scan_markup
-    source_info = text_stream.source_info
-    text = text_stream.scan_until(/(?=%})|\z/)
-    yield Liquider::Tokens::Markup.new(text, source_info).to_racc
-    @mode = :liquid
+  def scan_markup(&block)
+    scan_tokens([MarkupToken], &block)
   end
 
   def scan_tokens(tokens)
-    longest_match = tokens.map { |lexeme|
-      lexeme.check(text_stream)
+    longest_match = tokens.map { |token_type|
+      match = text_stream.check(token_type.pattern)
+      next NullToken.new('', text_stream.source_info) if match.nil?
+      token_type.new(match.to_s, text_stream.source_info)
     }.max_by { |match|
       match.weight
     }
 
-    return if longest_match.nil?
-
+    longest_match.raise_on_error(tokens, text_stream)
     text_stream.pos += longest_match.text.length
     @mode = longest_match.next_mode(@mode)
     yield longest_match.to_racc unless longest_match.ignore?
   end
+
+  def raise_token_not_found(tokens)
+  end
+
 end

@@ -1,53 +1,113 @@
 module Liquider::Tokens
-  module Scannable
-    def check(string_scanner)
-      match = string_scanner.check(pattern)
-      return NullToken.new('', nil) if match.nil?
-      new(match.to_s, nil)
+  include Liquider
+
+  WhiteSpace = Token.new_type(:WHITESPACE, /\s*/m) do
+    def ignore?
+      true
     end
   end
 
-  class Token
-    attr_reader :text, :source_info
-
-    def initialize(text, source_info)
-      @text, @source_info = text, source_info
-    end
-
-    class << self
-      include Scannable
-    end
-
-    def weight
-      text.length
+  TextToken = Token.new_type(:TEXT, %r<.*?(?:\z|(?=\{\{)|(?=\{%))>m) do
+    def next_mode(current_mode)
+      return :enter_liquid
     end
 
     def ignore?
-      false
+      text.empty?
+    end
+  end
+
+  RawTextToken = Token.new_type(:TEXT, %r<\{%\s*raw\s*%\}(.*?)\{%\s*endraw\s*\}>) do
+    def text
+      @raw_text ||= text.gsub(/\A\{%\s*raw\s*%\}/, '').gsub(/\{%\s*endraw\s*%\}\z/, '')
     end
 
-    def to_racc
-      [token_name, text]
+    def next_mode(current_mode)
+      return :text
     end
+  end
 
+  IdentToken = Token.new_type(:IDENT, %r<[[[:alpha:]]_][[[:alpha:]][[:digit:]]\-_]*[!\?]?>) do
+    def next_mode(current_mode)
+      case current_mode
+      when :tag_leader then :markup
+      else super
+      end
+    end
+  end
+
+  BlockTailToken = Token.new_type(:BLOCKTAIL, Regexp.new('end' + IdentToken.pattern.source)) do
     def next_mode(current_mode)
       :liquid
     end
   end
 
-  class NullToken < Token
-    def self.pattern
-      %r<>
+  NumberToken = Token.new_type(:NUMBER, %r<[0-9]+(?:\.[0-9]+)?>)
+  StringToken = Token.new_type(:STRING, %r<"[^"]*">)
+  TrueToken = Token.new_type(:TRUE, %r<true>)
+  FalseToken = Token.new_type(:FALSE, %r<false>)
+  PipeToken = Token.new_type(:PIPE, %r<\|>)
+  DotToken = Token.new_type(:DOT, %r<\.\.>)
+  DoubleDotToken = Token.new_type(:DOUBLEDOT, %r<\.\.>)
+  ColonToken = Token.new_type(:COLON, %r<:>)
+  CommaToken = Token.new_type(:COMMA, %r<,>)
+  TimesToken = Token.new_type(:TIMES, %r<\*>)
+  DivToken = Token.new_type(:DIV, %r</>)
+  PlusToken = Token.new_type(:PLUS, %r<\+>)
+  MinusToken = Token.new_type(:MINUS, %r<->)
+  EqToken = Token.new_type(:EQ, %r<==>)
+  NeToken = Token.new_type(:NE, %r<!=>)
+  LtToken = Token.new_type(:LT, %r{<})
+  LeToken = Token.new_type(:LE, %r{<=})
+  GtToken = Token.new_type(:GT, %r{>})
+  GeToken = Token.new_type(:GE, %r{>=})
+  ContainsToken = Token.new_type(:CONTAINS, %r<contains>)
+  ParenOpenToken = Token.new_type(:PARENOPEN, %r<\(>)
+  ParenCloseToken = Token.new_type(:PARENCLOSE, %r<\)>)
+
+  MustacheOpenToken = Token.new_type(:MUSTACHEOPEN, %r<\{\{>) do
+    def next_mode(current_mode)
+      :liquid
+    end
+  end
+
+  MustacheCloseToken = Token.new_type(:MUSTACHECLOSE, %r<}}>) do
+    def next_mode(current_mode)
+      :text
+    end
+  end
+
+  TagOpenToken = Token.new_type(:TAGOPEN, %r<\{%>) do
+    def next_mode(current_mode)
+      :tag_leader
+    end
+  end
+
+  TagCloseToken = Token.new_type(:TAGCLOSE, %r<%\}>) do
+    def next_mode(current_mode)
+      :text
+    end
+  end
+
+  MarkupToken = Token.new_type(:MARKUP, %r<.*?(?=\z|(?=\%\}))>) do
+    def next_mode(current_mode)
+      :liquid
+    end
+  end
+
+  BlockTail = Token.new_type(:BLOCKTAIL, %r<\{%\s*end\w+\s%\}>)
+
+  EosToken = Token.new_type(:EOS, %r<\z>) do
+    def to_racc
+      [false, false]
     end
 
-    def initialize(text, source_info)
-      super text, source_info
+    def next_mode(current_mode)
+      :eos
     end
+  end
 
-    def token_name
-      :NULL
-    end
-
+  NullToken = Token.new_type(:NULL, %r<.\A>) do
     def weight
       -1
     end
@@ -56,213 +116,18 @@ module Liquider::Tokens
       true
     end
 
-    def to_s
-      '#<Null>'
-    end
-  end
-
-  class WhiteSpace < Token
-    def self.pattern
-      %r<\s+>
+    def raise_on_error(tokens, text_stream)
+      raise LiquiderSyntaxError.new(%Q{Expected one of #{humanize_tokens tokens}, but found "#{text_stream.summarize}".})
     end
 
-    def token_name
-      :WHITESPACE
-    end
+    private
 
-    def ignore?
-      true
-    end
-
-    def next_mode(current_mode)
-      current_mode
-    end
-
-    def to_s
-      '#<WhiteSpace>'
-    end
-  end
-
-  class Text < Token
-    def self.pattern
-      %r<{%\s*raw\s*%}>
-    end
-
-    def token_name
-      :TEXT
-    end
-
-    def to_s
-      %Q{#<Text "#{text}"}
-    end
-  end
-
-  class Ident < Token
-    def self.pattern
-      %r<(?:[[:alpha:]]|_)(?:[[[:alpha:]][[:digit:]]\-_])*(?:!|\?)?>
-    end
-
-    def token_name
-      :IDENT
-    end
-
-    def next_mode(current_mode)
-      case current_mode
-      when :tag_leader then :tag_markup
-      else super
-      end
-    end
-
-    def to_s
-      %Q{#<Ident "#{text}">}
-    end
-  end
-
-  class Atom < Token
-    attr_reader :token_name
-
-    def initialize(token_name, text, source_info, next_mode = nil)
-      super text, source_info
-      @token_name = token_name
-      @next_mode = next_mode
-    end
-
-    def to_s
-      "#<#{token_name}>"
-    end
-
-    def next_mode(*a)
-      @next_mode || super
-    end
-  end
-
-  class AtomType
-    attr_reader :token_name, :pattern, :next_mode
-
-    def initialize(token_name, pattern, next_mode = nil)
-      @token_name, @pattern, @next_mode = token_name, pattern, next_mode
-    end
-
-    include Scannable
-
-    def new(text, source_info)
-      Atom.new(token_name, text, source_info, next_mode)
-    end
-  end
-
-  class TagOpen < Atom
-    class << self
-      def pattern
-        %r<\{%>
-      end
-    end
-
-    def initialize(text, source_info)
-      super :TAGOPEN, text, source_info
-    end
-
-    def next_mode(current_mode)
-      :tag_leader
-    end
-  end
-
-  class TagClose < Atom
-    class << self
-      def pattern
-        %r<%\}>
-      end
-    end
-
-    def initialize(text, source_info)
-      super :TAGCLOSE, text, source_info
-    end
-
-    def next_mode(current_mode)
-      :text
-    end
-  end
-
-  class Markup
-    attr_reader :text
-
-    def initialize(text, source_info)
-      @text = text
-    end
-
-    def to_racc
-      [:MARKUP, text]
-    end
-  end
-
-  BlockTail  = AtomType.new(:BLOCKTAIL, %r<\{%\s*end\w+\s%\}>)
-
-  class Eos
-    class << self
-      def check(text_stream)
-        if text_stream.eos?
-          self
-        else
-          NullToken.new('', 0)
-        end
-      end
-
-      def token_name
-        :EOS
-      end
-
-      def text
-        ''
-      end
-
-      def ignore?
-        false
-      end
-
-      def weight
-        0
-      end
-
-      def to_racc
-        [false, false]
-      end
-
-      def next_mode(current_mode)
-        :eos
+    def humanize_tokens(tokens)
+      case tokens.length
+      when 0 then 'nothing'
+      when 1 then tokens.first.to_s
+      else tokens[0...-1].map(&:to_s).join(', ') + ', or ' + tokens[-1].to_s
       end
     end
   end
-
-  LEXEMES = [
-    WhiteSpace,
-    Text,
-    Ident,
-    AtomType.new(:NUMBER, %r<[0-9]+(?:\.[0-9]+)?>),
-    AtomType.new(:STRING, %r<"[^"]*">),
-    AtomType.new(:TRUE, %r<true>),
-    AtomType.new(:TRUE, %r<false>),
-    AtomType.new(:PIPE, %r<\|>),
-    AtomType.new(:DOT, %r<\.\.>),
-    AtomType.new(:DOTDOT, %r<\.\.>),
-    AtomType.new(:COLON, %r<:>),
-    AtomType.new(:COMMA, %r<,>),
-    AtomType.new(:TIMES, %r<\*>),
-    AtomType.new(:DIV, %r</>),
-    AtomType.new(:PLUS, %r<\+>),
-    AtomType.new(:MINUS, %r<->),
-    AtomType.new(:EQ, %r<==>),
-    AtomType.new(:NE, %r<!=>),
-    AtomType.new(:LT, %r{<}),
-    AtomType.new(:LE, %r{<=}),
-    AtomType.new(:GT, %r{>}),
-    AtomType.new(:GE, %r{>=}),
-    AtomType.new(:CONTAINS, %r<contains>),
-    AtomType.new(:MUSTACHEOPEN, %r<{{>),
-    AtomType.new(:MUSTACHECLOSE, %r<}}>, :text),
-    TagOpen,
-    TagClose,
-    BlockTail,
-    AtomType.new(:PARENTOPEN, %r<\(>),
-    AtomType.new(:PARENTCLOSE, %r<\)>),
-    Eos,
-  ]
 end

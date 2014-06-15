@@ -55,6 +55,7 @@ describe Scanner do
       [:MUSTACHEOPEN, '{{'],
       [:IDENT, 'toto'],
       [:MUSTACHECLOSE, '}}'],
+      [:TEXT, "\n"],
       [false, false],
     ])
   end
@@ -63,7 +64,7 @@ describe Scanner do
     expect('{% foo asdf + 3 %}').to be_scanned_as([
       [:TAGOPEN, '{%'],
       [:IDENT, 'foo'],
-      [:MARKUP, 'asdf + 3 '],
+      [:MARKUP, ' asdf + 3 '],
       [:TAGCLOSE, '%}'],
       [false, false],
     ])
@@ -74,7 +75,7 @@ describe Scanner do
       [:TEXT, 'asdf'],
       [:TAGOPEN, '{%'],
       [:IDENT, 'foo'],
-      [:MARKUP, 'asdf + 3 '],
+      [:MARKUP, ' asdf + 3 '],
       [:TAGCLOSE, '%}'],
       [:TEXT, 'jkl;'],
       [false, false],
@@ -101,10 +102,12 @@ describe Scanner do
     expect('{% billy 2 + 2 == 4 %}asdf{% endbilly %}').to be_scanned_as([
       [:TAGOPEN, '{%'],
       [:IDENT, 'billy'],
-      [:MARKUP, '2 + 2 == 4 '],
+      [:MARKUP, ' 2 + 2 == 4 '],
       [:TAGCLOSE, '%}'],
       [:TEXT, 'asdf'],
-      [:BLOCKTAIL, '{% endbilly %}'],
+      [:TAGOPEN, '{%'],
+      [:BLOCKTAIL, 'endbilly'],
+      [:TAGCLOSE, '%}'],
       [false, false],
     ])
   end

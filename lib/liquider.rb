@@ -1,5 +1,6 @@
 require 'erb'
 require 'liquider/version'
+require 'liquider/token'
 require 'liquider/tokens'
 require 'liquider/text_stream'
 require 'liquider/scanner'

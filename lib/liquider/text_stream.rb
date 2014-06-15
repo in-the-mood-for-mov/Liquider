@@ -26,6 +26,14 @@ class Liquider::TextStream
     SourceInfo.new(@line, @column)
   end
 
+  def summarize
+    head = @scanner.peek(16)
+    if head.length < 16
+      head << '<EOS>'
+    end
+    head
+  end
+
   def_delegators :@scanner, :eos?, :check, :pos, :pos=
 
   private
