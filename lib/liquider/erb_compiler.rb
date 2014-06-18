@@ -118,6 +118,18 @@ class Liquider::ErbCompiler
     }
   end
 
+  def on_raw_erb(raw_erb)
+    erb_tag(output: raw_erb.output) {
+      raw_erb.parts.each do |part|
+        if part.respond_to?(:visit)
+          part.visit(self)
+        else
+          @output << part.to_s
+        end
+      end
+    }
+  end
+
   private
   def wrap(start, finish = nil)
     @output << start
@@ -156,6 +168,19 @@ class Liquider::ErbCompiler
   end
 
   module Ast
+    class RawErbNode
+      attr_reader :parts, :output
+
+      def initialize(parts, output: )
+        @parts = parts
+        @output = output
+      end
+
+      def visit(visitor)
+        visitor.on_raw_erb(self)
+      end
+    end
+
     class HtmlBlockNode
       attr_reader :tag_name, :opt_list, :body
 

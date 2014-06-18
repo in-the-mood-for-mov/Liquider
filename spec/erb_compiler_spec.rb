@@ -169,6 +169,19 @@ describe Liquider::ErbCompiler do
     end
   end
 
+  context RawErbNode do
+    let(:target) {
+      RawErbNode.new([
+        "content1(",
+        StringNode.new('toto'),
+        ")",
+      ], output: true)
+    }
+    it 'renders and outputs' do
+      expect(compiler.output).to eq("<%= content1('toto') %>")
+    end
+  end
+
   context HtmlBlockNode do
     let(:target) {
       HtmlBlockNode.new(
