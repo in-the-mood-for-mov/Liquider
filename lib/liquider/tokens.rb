@@ -36,12 +36,6 @@ module Liquider::Tokens
     end
   end
 
-  BlockTailToken = Token.new_type(:BLOCKTAIL, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
-    def next_mode(current_mode)
-      :text
-    end
-  end
-
   NumberToken = Token.new_type(:NUMBER, %r<[0-9]+(?:\.[0-9]+)?>)
   StringToken = Token.new_type(:STRING, %r<"[^"]*">)
   TrueToken = Token.new_type(:TRUE, %r<true>)
@@ -77,9 +71,9 @@ module Liquider::Tokens
     end
   end
 
-  TagOpenToken = Token.new_type(:TAGOPEN, %r<\{%>) do
+  TagOpenToken = Token.new_type(:TAGOPEN, Regexp.new('\{%\s*' + IdentToken.pattern.source)) do
     def next_mode(current_mode)
-      :tag_leader
+      :markup
     end
   end
 
@@ -88,6 +82,19 @@ module Liquider::Tokens
       :text
     end
   end
+
+  IfToken = Token.new_tag_leader(:IF, %r<\{%\s*if>)
+  ElsifToken = Token.new_tag_leader(:ELSIF, %r<\{%\s*elsif>)
+
+  ElseToken = Token.new_type(:ELSE, %r<\{%\s*else\s*%}>)
+  EndIfToken = Token.new_type(:ENDIF, %r<\{%\s*endif\s*%}>)
+
+  EndBlockToken = Token.new_type(:ENDBLOCK, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
+    def next_mode(current_mode)
+      :text
+    end
+  end
+
 
   MarkupToken = Token.new_type(:MARKUP, %r<.*?(?=\z|(?=\%\}))>) do
     def next_mode(current_mode)

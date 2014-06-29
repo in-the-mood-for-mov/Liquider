@@ -4,6 +4,7 @@ class Liquider::Parser < Liquider::GeneratedParser
   def initialize(tags, scanner)
     @tags, @scanner = tags, scanner
     @injected_tokens = []
+    @yydebug = true
   end
 
   def parse

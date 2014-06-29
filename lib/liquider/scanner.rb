@@ -12,7 +12,6 @@ class Liquider::Scanner
       case @mode
       when :text then scan_text(&block)
       when :enter_liquid then scan_enter_liquid(&block)
-      when :tag_leader then scan_tag_leader(&block)
       when :liquid then scan_liquid(&block)
       when :markup then scan_markup(&block)
       when :eos then return
@@ -40,8 +39,12 @@ class Liquider::Scanner
   ENTER_LIQUID_TOKENS = [
     RawTextToken,
     MustacheOpenToken,
+    IfToken,
+    ElsifToken,
+    ElseToken,
+    EndIfToken,
     TagOpenToken,
-    BlockTailToken,
+    EndBlockToken,
     EosToken
   ].freeze
 
@@ -82,16 +85,6 @@ class Liquider::Scanner
   def scan_liquid(&block)
     eat_whitespace
     scan_tokens(LIQUID_TOKENS, &block)
-  end
-
-  TAG_LEADER_TOKENS = [
-    IdentToken,
-    EosToken,
-  ].freeze
-
-  def scan_tag_leader(&block)
-    eat_whitespace
-    scan_tokens(TAG_LEADER_TOKENS, &block)
   end
 
   def scan_markup(&block)

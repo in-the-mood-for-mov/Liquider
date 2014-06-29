@@ -84,12 +84,11 @@ describe Parser do
 
   it 'can parse blocks' do
     tokens = [
-      [:TAGOPEN, '{%'],
-      [:IDENT, 'block'],
+      [:TAGOPEN, '{% block'],
       [:MARKUP, ''],
       [:TAGCLOSE, '%}'],
       [:TEXT, 'foo'],
-      [:BLOCKTAIL, '{% endblock %}'],
+      [:ENDBLOCK, '{% endblock %}'],
       [false, false],
     ]
     ast = Ast::DocumentNode.new([
@@ -106,8 +105,7 @@ describe Parser do
 
   it 'can parse tags' do
     tokens = [
-      [:TAGOPEN, '{%'],
-      [:IDENT, 'tag'],
+      [:TAGOPEN, '{% tag'],
       [:MARKUP, ''],
       [:TAGCLOSE, '%}'],
       [false, false],
@@ -139,6 +137,96 @@ describe Parser do
         )], []
       )
     )
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it 'parses simple if statements' do
+    tokens = [
+      [:IF, '{% if'],
+      [:IDENT, 'foo'],
+      [:TAGCLOSE, '%}'],
+      [:TEXT, 'asdf'],
+      [:ENDIF, '{% endif %}'],
+      [false, false],
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::IfNode.new([
+        [
+          Ast::SymbolNode.new('foo'),
+          Ast::DocumentNode.new([
+            Ast::TextNode.new('asdf')
+          ])
+        ]
+      ]),
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it 'parses if-else statements' do
+    tokens = [
+      [:IF, '{% if'],
+      [:IDENT, 'foo'],
+      [:TAGCLOSE, '%}'],
+      [:TEXT, 'asdf'],
+      [:ELSE, '{% else %}'],
+      [:MUSTACHEOPEN, '{{'],
+      [:IDENT, 'bar'],
+      [:MUSTACHECLOSE, '}}'],
+      [:ENDIF, '{% endif %}'],
+      [false, false],
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::IfNode.new([
+        [
+          Ast::SymbolNode.new('foo'),
+          Ast::DocumentNode.new([
+            Ast::TextNode.new('asdf')
+          ])
+        ], [
+          Ast::BooleanNode.new(true),
+          Ast::DocumentNode.new([
+            Ast::MustacheNode.new(Ast::SymbolNode.new('bar'))
+          ])
+        ]
+      ]),
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it 'parses if-elsif-else statements' do
+    tokens = [
+      [:IF, '{% if'],
+      [:IDENT, 'foo'],
+      [:TAGCLOSE, '%}'],
+      [:TEXT, 'asdf'],
+      [:ELSIF, '{% elsif'],
+      [:FALSE, 'false'],
+      [:TAGCLOSE, '%}'],
+      [:ELSE, '{% else %}'],
+      [:MUSTACHEOPEN, '{{'],
+      [:IDENT, 'bar'],
+      [:MUSTACHECLOSE, '}}'],
+      [:ENDIF, '{% endif %}'],
+      [false, false],
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::IfNode.new([
+        [
+          Ast::SymbolNode.new('foo'),
+          Ast::DocumentNode.new([
+            Ast::TextNode.new('asdf')
+          ])
+        ], [
+          Ast::BooleanNode.new(false),
+          Ast::DocumentNode.new([])
+        ], [
+          Ast::BooleanNode.new(true),
+          Ast::DocumentNode.new([
+            Ast::MustacheNode.new(Ast::SymbolNode.new('bar'))
+          ])
+        ]
+      ]),
+    ])
     expect(parse(tokens)).to eq(ast)
   end
 

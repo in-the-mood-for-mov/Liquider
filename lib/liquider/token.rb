@@ -21,6 +21,14 @@ class Liquider::Token
       token_type.class_eval(&block) if block_given?
       token_type
     end
+
+    def new_tag_leader(token_name, pattern)
+      new_type(token_name, pattern) do
+        def next_mode(current_mode)
+          :liquid
+        end
+      end
+    end
   end
 
   def initialize(text, source_info)

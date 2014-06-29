@@ -11,7 +11,7 @@ end
 
 class Liquider::BlockTail
   class << self
-    def from_source(source)
+    def from_token(source)
       source =~ /{%\s*end(\w+)\s*%}/
       new $1
     end

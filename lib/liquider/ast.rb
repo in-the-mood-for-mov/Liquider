@@ -210,6 +210,12 @@ module Liquider::Ast
     end
   end
 
+  class BooleanNode < LiteralNode
+    def visit(visitor)
+      visitor.on_bool(self)
+    end
+  end
+
   class ParenthesisedNode
     attr_reader :expression
 
@@ -223,6 +229,22 @@ module Liquider::Ast
 
     def visit(visitor)
       visitor.on_parenthesis(self)
+    end
+  end
+
+  class IfNode
+    attr_reader :table
+
+    def initialize(table)
+      @table = table
+    end
+
+    def ==(other)
+      table == other.table
+    end
+
+    def visit(visitor)
+      visitor.on_if(self)
     end
   end
 end

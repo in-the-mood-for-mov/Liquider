@@ -62,8 +62,7 @@ describe Scanner do
 
   it 'can scan tags' do
     expect('{% foo asdf + 3 %}').to be_scanned_as([
-      [:TAGOPEN, '{%'],
-      [:IDENT, 'foo'],
+      [:TAGOPEN, '{% foo'],
       [:MARKUP, ' asdf + 3 '],
       [:TAGCLOSE, '%}'],
       [false, false],
@@ -73,8 +72,7 @@ describe Scanner do
   it 'can scan tags surrounded by text' do
     expect('asdf{% foo asdf + 3 %}jkl;').to be_scanned_as([
       [:TEXT, 'asdf'],
-      [:TAGOPEN, '{%'],
-      [:IDENT, 'foo'],
+      [:TAGOPEN, '{% foo'],
       [:MARKUP, ' asdf + 3 '],
       [:TAGCLOSE, '%}'],
       [:TEXT, 'jkl;'],
@@ -82,30 +80,55 @@ describe Scanner do
     ])
   end
 
-  it 'gracefully handles unterminated tag (before ident)' do
-    expect('{%').to be_scanned_as([
-      [:TAGOPEN, '{%'],
-      [false, false],
-    ])
-  end
-
-  it 'gracefully handles unterminated tag (after ident)' do
+  it 'gracefully handles unterminated tag' do
     expect('{% unterminat').to be_scanned_as([
-      [:TAGOPEN, '{%'],
-      [:IDENT, 'unterminat'],
+      [:TAGOPEN, '{% unterminat'],
       [:MARKUP, ''],
       [false, false],
     ])
   end
 
-  it 'can scan blocks' do
+  it 'scans blocks' do
     expect('{% billy 2 + 2 == 4 %}asdf{% endbilly %}').to be_scanned_as([
-      [:TAGOPEN, '{%'],
-      [:IDENT, 'billy'],
+      [:TAGOPEN, '{% billy'],
       [:MARKUP, ' 2 + 2 == 4 '],
       [:TAGCLOSE, '%}'],
       [:TEXT, 'asdf'],
-      [:BLOCKTAIL, '{% endbilly %}'],
+      [:ENDBLOCK, '{% endbilly %}'],
+      [false, false],
+    ])
+  end
+
+  it 'scans if' do
+    expect('{% if a + b %}').to be_scanned_as([
+      [:IF, '{% if'],
+      [:IDENT, 'a'],
+      [:PLUS, '+'],
+      [:IDENT, 'b'],
+      [:TAGCLOSE, '%}'],
+      [false, false],
+    ])
+  end
+
+  it 'scans elsif' do
+    expect('{% elsif foo %}').to be_scanned_as([
+      [:ELSIF, '{% elsif'],
+      [:IDENT, 'foo'],
+      [:TAGCLOSE, '%}'],
+      [false, false],
+    ])
+  end
+
+  it 'scans else' do
+    expect('{% else %}').to be_scanned_as([
+      [:ELSE, '{% else %}'],
+      [false, false],
+    ])
+  end
+
+  it 'scans endif' do
+    expect('{% endif %}').to be_scanned_as([
+      [:ENDIF, '{% endif %}'],
       [false, false],
     ])
   end

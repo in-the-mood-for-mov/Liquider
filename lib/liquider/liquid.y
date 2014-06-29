@@ -13,7 +13,8 @@ token TEXT IDENT NUMBER STRING TRUE FALSE
 
 token GOTOEXPRESSION GOTOARGLIST
 
-token MARKUP BLOCKTAIL
+token MARKUP ENDBLOCK
+token IF ELSIF ELSE ENDIF
 
 rule
   Liquid
@@ -102,7 +103,7 @@ rule
   ;
 
   OptArgList
-  : OptArg                  { result = val }
+  : OptArg { result = [val[0]] }
   | OptArgList COMMA OptArg {
       opt_arg_list, _, opt_arg = val
       if opt_arg_list.map(&:key).include?(opt_arg.key)
@@ -117,7 +118,8 @@ rule
   ;
 
   Block
-  : BlockHead Document BlockTail {
+  : IfStatement
+  | BlockHead Document BlockTail {
       head, document, tail = val
       unless head.tag_name == tail.tag_name
         raise LiquiderSyntaxError.new(%Q<Expected "{% end#{head.tag_name} %}", but found "{% end#{tail.tag_name} %}".>)
@@ -128,13 +130,24 @@ rule
   ;
 
   BlockHead
-  : TAGOPEN IDENT MARKUP TAGCLOSE {
-      _, tag_name, markup, _ = val
-      inject_token([:BLOCKTAIL, "{% end#{tag_name} %}"]) unless tag_with_name(tag_name).block?
+  : TAGOPEN MARKUP TAGCLOSE {
+      tag_head, markup, _ = val
+      tag_name = tag_head.gsub(/\{%\s*/, '')
+      inject_token([:ENDBLOCK, "{%end#{tag_name}%}"]) unless tag_with_name(tag_name).block?
       result = BlockHead.new(tag_name, markup)
     }
   ;
 
   BlockTail
-  : BLOCKTAIL { result = BlockTail.from_source(val[0]) }
+  : ENDBLOCK { result = BlockTail.from_token(val[0]) }
+  ;
+
+  IfStatement
+  : IF Expression TAGCLOSE Document IfContinuation { result = Ast::IfNode.new([[val[1], val[3]], *val[4]]) }
+  ;
+
+  IfContinuation
+  : ENDIF { result = [] }
+  | ELSE Document ENDIF { result = [[Ast::BooleanNode.new(true), val[1]]] }
+  | ELSIF Expression TAGCLOSE Document IfContinuation { result = [[val[1], val[3]]] + val[4] }
   ;
