@@ -659,7 +659,7 @@ module_eval(<<'.,.,', 'liquid.y', 150)
 
 module_eval(<<'.,.,', 'liquid.y', 151)
   def _reduce_54(val, _values, result)
-     result = [[val[2], val[4]]] + val[5] 
+     result = [[val[1], val[3]]] + val[4] 
     result
   end
 .,.,

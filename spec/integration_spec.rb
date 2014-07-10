@@ -21,6 +21,5 @@ describe Liquider do
   it "can render erb templates" do
     scanner = Liquider::Scanner.new(Liquider::TextStream.new(Template))
     parser = Liquider::Parser.new(TAGS, scanner)
-    binding.pry
   end
 end
