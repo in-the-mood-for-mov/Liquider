@@ -2,9 +2,9 @@ class Liquider::Scanner
   include Enumerable
   include Liquider::Tokens
 
-  def initialize(text_stream)
+  def initialize(text_stream, mode: :text)
     @text_stream = text_stream
-    @mode = :text
+    @mode = mode
   end
 
   def each(&block)
