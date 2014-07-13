@@ -37,3 +37,25 @@ module Liquider::Spec
     'tag' => TestTag,
   }
 end
+
+module TokenHelper
+  def t_ident(value)
+    [:IDENT, value.to_s]
+  end
+
+  def t_number(value)
+    [:NUMBER, value.to_s]
+  end
+
+  def t_string(value)
+    [:STRING, value]
+  end
+
+  def t_plus
+    [:PLUS, '+']
+  end
+
+  def t_times
+    [:TIMES, '*']
+  end
+end
