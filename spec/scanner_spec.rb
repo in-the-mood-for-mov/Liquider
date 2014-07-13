@@ -132,4 +132,22 @@ describe Scanner do
       [false, false],
     ])
   end
+
+  it 'scans unless' do
+    expect('{% unless a + b %}').to be_scanned_as([
+      [:UNLESS, '{% unless'],
+      [:IDENT, 'a'],
+      [:PLUS, '+'],
+      [:IDENT, 'b'],
+      [:TAGCLOSE, '%}'],
+      [false, false],
+    ])
+  end
+
+  it 'scans endunless' do
+    expect('{% endunless %}').to be_scanned_as([
+      [:ENDUNLESS, '{% endunless %}'],
+      [false, false],
+    ])
+  end
 end

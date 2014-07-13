@@ -117,6 +117,19 @@ module Liquider::Ast
     end
   end
 
+  class NegationNode
+    attr_reader :expression
+
+    def initialize(expression)
+      @expression = expression
+    end
+
+    def ==(other)
+      other.is_a?(NegationNode) and
+      expression == other.expression
+    end
+  end
+
   class BinOpNode
     attr_reader :left, :right, :op
 

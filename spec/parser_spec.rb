@@ -230,6 +230,28 @@ describe Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it 'parses unless statements' do
+    tokens = [
+      [:UNLESS, '{% unless'],
+      [:IDENT, 'foo'],
+      [:TAGCLOSE, '%}'],
+      [:TEXT, 'asdf'],
+      [:ENDUNLESS, '{% endunless %}'],
+      [false, false],
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::IfNode.new([
+        [
+          Ast::NegationNode.new(Ast::SymbolNode.new('foo')),
+          Ast::DocumentNode.new([
+            Ast::TextNode.new('asdf')
+          ])
+        ]
+      ]),
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
   private
 
   def parse(tokens)

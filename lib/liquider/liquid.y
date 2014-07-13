@@ -14,7 +14,7 @@ token TEXT IDENT NUMBER STRING TRUE FALSE
 token GOTOEXPRESSION GOTOARGLIST
 
 token MARKUP ENDBLOCK
-token IF ELSIF ELSE ENDIF
+token IF ELSIF ELSE ENDIF UNLESS ENDUNLESS
 
 rule
   Liquid
@@ -119,6 +119,7 @@ rule
 
   Block
   : IfStatement
+  | UnlessStatement
   | BlockHead Document BlockTail {
       head, document, tail = val
       unless head.tag_name == tail.tag_name
@@ -150,4 +151,8 @@ rule
   : ENDIF { result = [] }
   | ELSE Document ENDIF { result = [[Ast::BooleanNode.new(true), val[1]]] }
   | ELSIF Expression TAGCLOSE Document IfContinuation { result = [[val[1], val[3]]] + val[4] }
+  ;
+
+  UnlessStatement
+  : UNLESS Expression TAGCLOSE Document ENDUNLESS { result = Ast::IfNode.new([[Ast::NegationNode.new(val[1]), val[3]]]) }
   ;

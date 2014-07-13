@@ -85,9 +85,11 @@ module Liquider::Tokens
 
   IfToken = Token.new_tag_leader(:IF, %r<\{%\s*if>)
   ElsifToken = Token.new_tag_leader(:ELSIF, %r<\{%\s*elsif>)
-
   ElseToken = Token.new_type(:ELSE, %r<\{%\s*else\s*%}>)
   EndIfToken = Token.new_type(:ENDIF, %r<\{%\s*endif\s*%}>)
+
+  UnlessToken = Token.new_tag_leader(:UNLESS, %r<\{%\s*unless>)
+  EndUnlessToken = Token.new_type(:ENDUNLESS, %r<\{%\s*endunless\s*%}>)
 
   EndBlockToken = Token.new_type(:ENDBLOCK, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
     def next_mode(current_mode)

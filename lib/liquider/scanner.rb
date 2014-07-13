@@ -43,6 +43,8 @@ class Liquider::Scanner
     ElsifToken,
     ElseToken,
     EndIfToken,
+    UnlessToken,
+    EndUnlessToken,
     TagOpenToken,
     EndBlockToken,
     EosToken
