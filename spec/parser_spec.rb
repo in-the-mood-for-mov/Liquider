@@ -111,7 +111,7 @@ describe Parser do
       [false, false],
     ]
     ast = Ast::DocumentNode.new([
-      Ast::TagNode.new('tag', :markup)
+      Ast::TagNode.new('tag', :markup, Ast::DocumentNode.new([]))
     ])
     expect(parse tokens).to eq(ast)
   end

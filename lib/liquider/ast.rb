@@ -1,263 +1,54 @@
 module Liquider::Ast
-  class DocumentNode
-    attr_reader :elements
+  class Node
+    class << self
+      def new_type(type_name, *attributes)
+        type = Class.new(Node)
 
-    def initialize(elements)
-      @elements = elements
-    end
+        attributes.each do |attribute|
+          type.class_eval do
+            attr_reader attribute
+          end
+        end
 
-    def ==(other)
-      elements == other.elements
-    end
+        type.class_eval(<<-INITIALIZE)
+          def initialize(#{attributes.join(',')})
+            #{attributes.map { |attribute| "@#{attribute}" }.join(',')} = #{attributes.join(',')}
+          end
+        INITIALIZE
 
-    def visit(visitor)
-      visitor.on_document(self)
-    end
-  end
+        type.class_eval(<<-EQUALS)
+          def ==(other)
+            return false unless self.class == other.class
+            #{attributes.map { |attribute| "#{attribute} == other.#{attribute}" }.join(' && ')}
+          end
+        EQUALS
 
-  class TextNode
-    attr_reader :text
+        type.class_eval(<<-VISIT)
+          def visit(visitor)
+            visitor.on_#{type_name}(self)
+          end
+        VISIT
 
-    def initialize(text)
-      @text = text
-    end
-
-    def ==(other)
-      text == other.text
-    end
-
-    def visit(visitor)
-      visitor.on_text(self)
-    end
-  end
-
-  class MustacheNode
-    attr_reader :expression
-
-    def initialize(expression)
-      @expression = expression
-    end
-
-    def ==(other)
-      expression == other.expression
-    end
-
-    def visit(visitor)
-      visitor.on_mustache(self)
+        type
+      end
     end
   end
 
-  class TagNode
-    attr_reader :node_name, :markup, :body
-
-    def initialize(node_name, markup, body=DocumentNode.new([]))
-      @node_name, @markup, @body = node_name, markup, body
-    end
-
-    def ==(other)
-      other.is_a?(TagNode) &&
-      node_name == other.node_name &&
-      markup == other.markup &&
-      body == other.body
-    end
-
-    def visit(visitor)
-      visitor.on_tag(self)
-    end
-  end
-
-  class FilterNode
-    attr_reader :arg_list, :message
-
-    def initialize(message, arg_list)
-      @message = message
-      @arg_list = arg_list
-    end
-
-    def ==(other)
-      other.is_a?(FilterNode) &&
-      arg_list == other.arg_list &&
-      message == other.message
-    end
-
-    def visit(visitor)
-      visitor.on_filter(self)
-    end
-  end
-
-  class ArgListNode
-    attr_reader :positionals, :optionals
-
-    def initialize(positionals, optionals)
-      @positionals, @optionals = positionals, optionals
-    end
-
-    def ==(other)
-      other.is_a?(ArgListNode) &&
-      positionals == other.positionals &&
-      optionals == other.optionals
-    end
-
-    def visit(visitor)
-      visitor.on_arg_list(self)
-    end
-  end
-
-  class OptionPairNode
-    attr_reader :key, :value
-
-    def initialize(key, value)
-      @key, @value = key, value
-    end
-
-    def ==(other)
-      other.is_a?(OptionPairNode) &&
-      key == other.key &&
-      value == other.value
-    end
-  end
-
-  class NegationNode
-    attr_reader :expression
-
-    def initialize(expression)
-      @expression = expression
-    end
-
-    def ==(other)
-      other.is_a?(NegationNode) and
-      expression == other.expression
-    end
-  end
-
-  class BinOpNode
-    attr_reader :left, :right, :op
-
-    def initialize(left, right, op)
-      @left, @right, @op = left, right, op
-    end
-
-    def ==(other)
-      left == other.left and
-      right == other.right and
-      op == other.op
-    end
-
-    def visit(visitor)
-      visitor.on_binop(self)
-    end
-  end
-
-  class CallNode
-    attr_reader :target, :property
-
-    def initialize(target, property)
-      @target, @property = target, property
-    end
-
-    def ==(other)
-      target == other.target and
-      property == other.property
-    end
-
-    def visit(visitor)
-      visitor.on_call(self)
-    end
-  end
-
-  class IndexNode
-    attr_reader :target, :property
-
-    def initialize(target, property)
-      @target, @property = target, property
-    end
-
-    def ==(other)
-      target == other.target and
-      property == other.property
-    end
-
-    def visit(visitor)
-      visitor.on_index(self)
-    end
-  end
-
-  class SymbolNode
-    attr_reader :name
-
-    def initialize(name)
-      @name = name
-    end
-
-    def ==(other)
-      name == other.name
-    end
-
-    def visit(visitor)
-      visitor.on_symbol(self)
-    end
-  end
-
-  class LiteralNode
-    attr_reader :value
-
-    def initialize(value)
-      @value = value
-    end
-
-    def ==(other)
-      other.is_a?(LiteralNode) and
-      value == other.value
-    end
-  end
-
-  class StringNode < LiteralNode
-    def visit(visitor)
-      visitor.on_string(self)
-    end
-  end
-
-  class NumberNode < LiteralNode
-    def visit(visitor)
-      visitor.on_number(self)
-    end
-  end
-
-  class BooleanNode < LiteralNode
-    def visit(visitor)
-      visitor.on_bool(self)
-    end
-  end
-
-  class ParenthesisedNode
-    attr_reader :expression
-
-    def initialize(expression)
-      @expression = expression
-    end
-
-    def ==(other)
-      expression == other.expression
-    end
-
-    def visit(visitor)
-      visitor.on_parenthesis(self)
-    end
-  end
-
-  class IfNode
-    attr_reader :table
-
-    def initialize(table)
-      @table = table
-    end
-
-    def ==(other)
-      table == other.table
-    end
-
-    def visit(visitor)
-      visitor.on_if(self)
-    end
-  end
+  DocumentNode = Node.new_type(:document, :elements)
+  TextNode = Node.new_type(:text, :text)
+  MustacheNode = Node.new_type(:mustache, :expression)
+  TagNode = Node.new_type(:tag, :node_name, :markup, :body)
+  FilterNode = Node.new_type(:filter, :message, :arg_list)
+  ArgListNode = Node.new_type(:arg_list, :positionals, :optionals)
+  OptionPairNode = Node.new_type(:option_pair, :key, :value)
+  NegationNode = Node.new_type(:negation, :expression)
+  BinOpNode = Node.new_type(:binop, :left, :right, :op)
+  CallNode = Node.new_type(:call, :target, :property)
+  IndexNode = Node.new_type(:index, :target, :property)
+  SymbolNode = Node.new_type(:symbol, :name)
+  StringNode = Node.new_type(:string, :value)
+  NumberNode = Node.new_type(:number, :value)
+  BooleanNode = Node.new_type(:boolean, :value)
+  ParenthesisedNode = Node.new_type(:parenthesised, :expression)
+  IfNode = Node.new_type(:if, :table)
 end

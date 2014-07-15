@@ -69,7 +69,7 @@ class Liquider::ErbCompiler
     wrap('[', ']') { index.property.visit(self) }
   end
 
-  def on_parenthesis(parenthesis)
+  def on_parenthesised(parenthesis)
     wrap('(', ')') { parenthesis.expression.visit(self) }
   end
 
@@ -129,7 +129,7 @@ class Liquider::ErbCompiler
     @output << '<' << tag.tag_name.to_s
     tag.opt_list.each do |opt_pair|
       @output << ' ' << opt_pair.key << '='
-      if opt_pair.value.kind_of?(LiteralNode)
+      if [StringNode, NumberNode, BooleanNode].any? { |node_type| opt_pair.value.is_a?(node_type) }
         opt_pair.value.visit(self)
       else
         wrap('"') {
