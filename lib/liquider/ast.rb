@@ -2,10 +2,8 @@ module Liquider::Ast
   class Node
     class << self
       def new_type(type_name, *attributes)
-        type = Class.new(Node)
-
-        attributes.each do |attribute|
-          type.class_eval do
+        type = Class.new(Node) do
+          attributes.each do |attribute|
             attr_reader attribute
           end
         end
@@ -51,4 +49,7 @@ module Liquider::Ast
   BooleanNode = Node.new_type(:boolean, :value)
   ParenthesisedNode = Node.new_type(:parenthesised, :expression)
   IfNode = Node.new_type(:if, :table)
+  CaseNode = Node.new_type(:case, :head, :cases)
+  WhenNode = Node.new_type(:when, :value, :body)
+  CaseElseNode = Node.new_type(:case_else, :body)
 end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Liquider::MarkupHelper do
-  include TokenHelper
+  include TokenSpecHelper
   include Liquider::MarkupHelper
 
   it "can tokenize liquid source" do

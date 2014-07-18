@@ -15,6 +15,7 @@ token GOTOEXPRESSION GOTOARGLIST
 
 token MARKUP ENDBLOCK
 token IF ELSIF ELSE ENDIF UNLESS ENDUNLESS
+token CASE WHEN ENDCASE
 
 rule
   Liquid
@@ -84,7 +85,7 @@ rule
   PrimaryExpression
   : IDENT { result = Ast::SymbolNode.new(val[0]) }
   | STRING { result = Ast::StringNode.new(val[0]) }
-  | NUMBER { result = Ast::NumberNode.new(val[0]) }
+  | NUMBER { result = Ast::NumberNode.new(val[0].to_i) }
   | TRUE { result = Ast::BooleanNode.new(true) }
   | FALSE { result = Ast::BooleanNode.new(false) }
   | PARENOPEN Expression PARENCLOSE { result = Ast::ParenthesisedNode.new(val[1]) }
@@ -120,6 +121,7 @@ rule
   Block
   : IfStatement
   | UnlessStatement
+  | CaseStatement
   | BlockHead Document BlockTail {
       head, document, tail = val
       unless head.tag_name == tail.tag_name
@@ -155,4 +157,17 @@ rule
 
   UnlessStatement
   : UNLESS Expression TAGCLOSE Document ENDUNLESS { result = Ast::IfNode.new([[Ast::NegationNode.new(val[1]), val[3]]]) }
+  ;
+
+  CaseStatement
+  : CASE Expression TAGCLOSE WHEN Expression TAGCLOSE Document CaseContinuation {
+      _, head, _, _, first_case, _, first_value, rest = *val
+      result = Ast::CaseNode.new(head, [WhenNode.new(first_case, first_value), *rest])
+    }
+  ;
+
+  CaseContinuation
+  : ENDCASE { result = [] }
+  | ELSE TAGCLOSE Document ENDCASE { result = [CaseElseNode.new(val[2])] }
+  | WHEN Expression TAGCLOSE Document CaseContinuation { result = [WhenNode.new(val[1], val[3]), *val[4]] }
   ;

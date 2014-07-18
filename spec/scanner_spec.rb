@@ -19,6 +19,8 @@ MESSAGE
 end
 
 describe Scanner do
+  include TokenSpecHelper
+
   it 'can scan plain text' do
     expect('asdf').to be_scanned_as([
       [:TEXT, 'asdf'],
@@ -148,6 +150,24 @@ describe Scanner do
     expect('{% endunless %}').to be_scanned_as([
       [:ENDUNLESS, '{% endunless %}'],
       [false, false],
+    ])
+  end
+
+  it 'scans case' do
+    expect('{% case x %}').to be_scanned_as([
+      t_case,
+      t_ident(:x),
+      t_tag_close,
+      t_eos,
+    ])
+  end
+
+  it 'scans when' do
+    expect('{% when x %}').to be_scanned_as([
+      t_when,
+      t_ident(:x),
+      t_tag_close,
+      t_eos,
     ])
   end
 end

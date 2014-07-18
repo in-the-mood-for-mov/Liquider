@@ -45,6 +45,9 @@ class Liquider::Scanner
     EndIfToken,
     UnlessToken,
     EndUnlessToken,
+    CaseToken,
+    WhenToken,
+    EndCaseToken,
     TagOpenToken,
     EndBlockToken,
     EosToken

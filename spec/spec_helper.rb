@@ -38,7 +38,7 @@ module Liquider::Spec
   }
 end
 
-module TokenHelper
+module TokenSpecHelper
   def t_ident(value)
     [:IDENT, value.to_s]
   end
@@ -57,5 +57,33 @@ module TokenHelper
 
   def t_times
     [:TIMES, '*']
+  end
+
+  def t_case
+    [:CASE, '{% case']
+  end
+
+  def t_when
+    [:WHEN, '{% when']
+  end
+
+  def t_else
+    [:ELSE, '{% else']
+  end
+
+  def t_end_case
+    [:ENDCASE, '{% endcase %}']
+  end
+
+  def t_tag_close
+    [:TAGCLOSE, "%}"]
+  end
+
+  def t_text(text)
+    [:TEXT, text]
+  end
+
+  def t_eos
+    [false, false]
   end
 end

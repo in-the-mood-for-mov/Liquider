@@ -1,17 +1,16 @@
 require 'spec_helper'
 
-include Liquider
-include Liquider::Spec
+describe Liquider::Parser do
+  include TokenSpecHelper
 
-describe Parser do
   it 'parses symbols' do
     tokens = [
       [:GOTOEXPRESSION, ''],
       [:IDENT, 'foo'],
       [false, false]
     ]
-    ast = Liquider::Ast::SymbolNode.new('foo')
-    expect(parse tokens).to eq(ast)
+    ast = Ast::SymbolNode.new('foo')
+    expect(parse(tokens)).to eq(ast)
   end
 
   it 'parses expressions with various binary operators' do
@@ -26,18 +25,18 @@ describe Parser do
       [:NUMBER, 40],
       [false, false]
     ]
-    ast = Liquider::Ast::BinOpNode.new(
+    ast = Ast::BinOpNode.new(
       :<,
-      Liquider::Ast::BinOpNode.new(
+      Ast::BinOpNode.new(
         :+,
-        Liquider::Ast::SymbolNode.new('foo'),
-        Liquider::Ast::BinOpNode.new(
+        Ast::SymbolNode.new('foo'),
+        Ast::BinOpNode.new(
           :*,
-          Liquider::Ast::StringNode.new('bar'),
-          Liquider::Ast::SymbolNode.new('baz'),
+          Ast::StringNode.new('bar'),
+          Ast::SymbolNode.new('baz'),
         ),
       ),
-      Liquider::Ast::NumberNode.new(40),
+      Ast::NumberNode.new(40),
     )
     expect(parse tokens).to eq(ast)
   end
@@ -69,8 +68,8 @@ describe Parser do
           'baz',
           Ast::BinOpNode.new(
             :+,
-            Ast::NumberNode.new('25'),
-            Ast::NumberNode.new('36')
+            Ast::NumberNode.new(25),
+            Ast::NumberNode.new(36)
           )
         ),
         Ast::OptionPairNode.new(
@@ -252,9 +251,128 @@ describe Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it 'does not parses empty case statements' do
+    tokens = [
+      [:CASE, '{% case'],
+      [:IDENT, 'x'],
+      [:TAGCLOSE, '%}'],
+      [:ENDCASE, '{% endcase %}'],
+      [false, false],
+    ]
+    expect { parse(tokens) }.to raise_error(Racc::ParseError)
+  end
+
+  it 'parses case statments with single branch' do
+    tokens = [
+      t_case,
+      t_ident(:x),
+      t_tag_close,
+      t_when,
+      t_number(0),
+      t_tag_close,
+      t_text('foo'),
+      t_end_case,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::CaseNode.new(
+        Ast::SymbolNode.new('x'),
+        [
+          Ast::WhenNode.new(
+            Ast::NumberNode.new(0),
+            Ast::DocumentNode.new([Ast::TextNode.new('foo')])
+          ),
+        ]
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it 'parses case statments with single branch' do
+    tokens = [
+      t_case,
+      t_ident(:x),
+      t_tag_close,
+      t_when,
+      t_number(0),
+      t_tag_close,
+      t_text('foo'),
+      t_when,
+      t_number(1),
+      t_tag_close,
+      t_text('bar'),
+      t_when,
+      t_number(2),
+      t_tag_close,
+      t_text('quux'),
+      t_end_case,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::CaseNode.new(
+        Ast::SymbolNode.new('x'),
+        [
+          Ast::WhenNode.new(
+            Ast::NumberNode.new(0),
+            Ast::DocumentNode.new([Ast::TextNode.new('foo')])
+          ),
+          Ast::WhenNode.new(
+            Ast::NumberNode.new(1),
+            Ast::DocumentNode.new([Ast::TextNode.new('bar')])
+          ),
+          Ast::WhenNode.new(
+            Ast::NumberNode.new(2),
+            Ast::DocumentNode.new([Ast::TextNode.new('quux')])
+          ),
+        ]
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it 'parses case statments with else branch' do
+    tokens = [
+      t_case,
+      t_ident(:x),
+      t_tag_close,
+      t_when,
+      t_number(0),
+      t_tag_close,
+      t_text('foo'),
+      t_when,
+      t_number(1),
+      t_tag_close,
+      t_text('bar'),
+      t_else,
+      t_tag_close,
+      t_text('quux'),
+      t_end_case,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::CaseNode.new(
+        Ast::SymbolNode.new('x'),
+        [
+          Ast::WhenNode.new(
+            Ast::NumberNode.new(0),
+            Ast::DocumentNode.new([Ast::TextNode.new('foo')])
+          ),
+          Ast::WhenNode.new(
+            Ast::NumberNode.new(1),
+            Ast::DocumentNode.new([Ast::TextNode.new('bar')])
+          ),
+          Ast::CaseElseNode.new(
+            Ast::DocumentNode.new([Ast::TextNode.new('quux')])
+          ),
+        ]
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
   private
 
   def parse(tokens)
-    Parser.new(TAGS, tokens).parse
+    Liquider::Parser.new(TAGS, tokens).parse
   end
 end

@@ -22,12 +22,16 @@ class Liquider::Token
       token_type
     end
 
-    def new_tag_leader(token_name, pattern)
-      new_type(token_name, pattern) do
+    def new_tag_leader(token_name)
+      new_type(token_name, %r<\{%\s*#{token_name.to_s.downcase}>) do
         def next_mode(current_mode)
           :liquid
         end
       end
+    end
+
+    def new_lone_keyword(token_name)
+      new_type(token_name, %r<\{%\s*#{token_name.to_s.downcase}\s*%\}>)
     end
   end
 

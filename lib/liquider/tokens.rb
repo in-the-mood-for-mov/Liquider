@@ -83,13 +83,17 @@ module Liquider::Tokens
     end
   end
 
-  IfToken = Token.new_tag_leader(:IF, %r<\{%\s*if>)
-  ElsifToken = Token.new_tag_leader(:ELSIF, %r<\{%\s*elsif>)
-  ElseToken = Token.new_type(:ELSE, %r<\{%\s*else\s*%}>)
-  EndIfToken = Token.new_type(:ENDIF, %r<\{%\s*endif\s*%}>)
+  IfToken = Token.new_tag_leader(:IF)
+  ElsifToken = Token.new_tag_leader(:ELSIF)
+  ElseToken = Token.new_lone_keyword(:ELSE)
+  EndIfToken = Token.new_lone_keyword(:ENDIF)
 
-  UnlessToken = Token.new_tag_leader(:UNLESS, %r<\{%\s*unless>)
-  EndUnlessToken = Token.new_type(:ENDUNLESS, %r<\{%\s*endunless\s*%}>)
+  UnlessToken = Token.new_tag_leader(:UNLESS)
+  EndUnlessToken = Token.new_lone_keyword(:ENDUNLESS)
+
+  CaseToken = Token.new_tag_leader(:CASE)
+  WhenToken = Token.new_tag_leader(:WHEN)
+  EndCaseToken = Token.new_lone_keyword(:ENDCASE)
 
   EndBlockToken = Token.new_type(:ENDBLOCK, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
     def next_mode(current_mode)
