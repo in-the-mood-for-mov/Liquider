@@ -59,6 +59,18 @@ module TokenSpecHelper
     [:TIMES, '*']
   end
 
+  def t_dot
+    [:DOT, '.']
+  end
+
+  def t_mustache_open
+    [:MUSTACHEOPEN, '{{']
+  end
+
+  def t_mustache_close
+    [:MUSTACHECLOSE, '}}']
+  end
+
   def t_case
     [:CASE, '{% case']
   end
@@ -73,6 +85,18 @@ module TokenSpecHelper
 
   def t_end_case
     [:ENDCASE, '{% endcase %}']
+  end
+
+  def t_for
+    [:FOR, '{% for']
+  end
+
+  def t_in
+    [:IN, 'in']
+  end
+
+  def t_end_for
+    [:ENDFOR, '{% endfor %}']
   end
 
   def t_tag_close

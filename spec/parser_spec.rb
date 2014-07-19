@@ -370,6 +370,37 @@ describe Liquider::Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it "parses for statements" do
+    tokens = [
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_dot,
+      t_ident(:bar),
+      t_tag_close,
+      t_mustache_open,
+      t_ident(:x),
+      t_dot,
+      t_ident(:title),
+      t_mustache_close,
+      t_end_for,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::ForNode.new(
+        Ast::SymbolNode.new('x'),
+        Ast::CallNode.new(Ast::SymbolNode.new('foo'), Ast::SymbolNode.new('bar')),
+        Ast::DocumentNode.new([
+          Ast::MustacheNode.new(
+            Ast::CallNode.new(Ast::SymbolNode.new('x'), Ast::SymbolNode.new('title'))
+          ),
+        ])
+      ),
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
   private
 
   def parse(tokens)

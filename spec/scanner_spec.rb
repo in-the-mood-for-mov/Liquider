@@ -170,4 +170,29 @@ describe Scanner do
       t_eos,
     ])
   end
+
+  it 'scans endcase' do
+    expect('{% endcase %}').to be_scanned_as([
+      t_end_case,
+      t_eos,
+    ])
+  end
+
+  it 'scans for' do
+    expect('{% for x in foo %}').to be_scanned_as([
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_tag_close,
+      t_eos,
+    ])
+  end
+
+  it 'scans endfor' do
+    expect('{% endfor %}').to be_scanned_as([
+      t_end_for,
+      t_eos,
+    ])
+  end
 end

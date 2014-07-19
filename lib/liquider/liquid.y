@@ -16,6 +16,7 @@ token GOTOEXPRESSION GOTOARGLIST
 token MARKUP ENDBLOCK
 token IF ELSIF ELSE ENDIF UNLESS ENDUNLESS
 token CASE WHEN ENDCASE
+token FOR IN ENDFOR
 
 rule
   Liquid
@@ -78,7 +79,7 @@ rule
 
   CallExpression
   : PrimaryExpression
-  | CallExpression DOT IDENT { result = Ast::CallNode.new(val[0], val[2]) }
+  | CallExpression DOT IDENT { result = Ast::CallNode.new(val[0], Ast::SymbolNode.new(val[2])) }
   | CallExpression BRACKETOPEN Expression BRACKETCLOSE { result = Ast::IndexNode.new(val[0], val[3]) }
   ;
 
@@ -122,6 +123,7 @@ rule
   : IfStatement
   | UnlessStatement
   | CaseStatement
+  | ForStatement
   | BlockHead Document BlockTail {
       head, document, tail = val
       unless head.tag_name == tail.tag_name
@@ -170,4 +172,11 @@ rule
   : ENDCASE { result = [] }
   | ELSE TAGCLOSE Document ENDCASE { result = [CaseElseNode.new(val[2])] }
   | WHEN Expression TAGCLOSE Document CaseContinuation { result = [WhenNode.new(val[1], val[3]), *val[4]] }
+  ;
+
+  ForStatement
+  : FOR IDENT IN Expression TAGCLOSE Document ENDFOR {
+      _, binding, _, expression, _, body, _ = *val
+      result = Ast::ForNode.new(Ast::SymbolNode.new(binding), expression, body)
+    }
   ;

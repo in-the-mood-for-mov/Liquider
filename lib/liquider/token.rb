@@ -30,8 +30,12 @@ class Liquider::Token
       end
     end
 
-    def new_lone_keyword(token_name)
+    def new_text_keyword(token_name)
       new_type(token_name, %r<\{%\s*#{token_name.to_s.downcase}\s*%\}>)
+    end
+
+    def new_expr_keyword(token_name)
+      new_type(token_name, %r<#{token_name.to_s.downcase}>)
     end
   end
 

@@ -48,6 +48,8 @@ class Liquider::Scanner
     CaseToken,
     WhenToken,
     EndCaseToken,
+    ForToken,
+    EndForToken,
     TagOpenToken,
     EndBlockToken,
     EosToken
@@ -58,8 +60,6 @@ class Liquider::Scanner
   end
 
   LIQUID_TOKENS = [
-    RawTextToken,
-    IdentToken,
     NumberToken,
     StringToken,
     TrueToken,
@@ -80,10 +80,12 @@ class Liquider::Scanner
     GtToken,
     GeToken,
     ContainsToken,
+    InToken,
     ParenOpenToken,
     ParenCloseToken,
     MustacheCloseToken,
     TagCloseToken,
+    IdentToken,
     EosToken,
   ].freeze
 
