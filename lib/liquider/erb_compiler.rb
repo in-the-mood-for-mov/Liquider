@@ -19,6 +19,12 @@ class Liquider::ErbCompiler
     erb_tag(output: true) { mustache.expression.visit(self) }
   end
 
+  def on_assign(assign)
+    assign.binding.visit(self)
+    @output << " = "
+    assign.value.visit(self)
+  end
+
   def on_filter(filter)
     @output << filter.message
     wrap('(', ')') { filter.arg_list.visit(self) }

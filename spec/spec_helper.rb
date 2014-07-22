@@ -1,4 +1,5 @@
 require 'liquider'
+require 'rspec'
 require 'pry'
 
 RSpec.configure do |config|
