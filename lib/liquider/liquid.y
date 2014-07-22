@@ -9,7 +9,7 @@ token TAGOPEN TAGCLOSE
 token PARENOPEN PARENCLOSE
 token BRACKETOPEN BRACKETCLOSE
 
-token TEXT IDENT NUMBER STRING TRUE FALSE
+token TEXT IDENT KEYWORD NUMBER STRING TRUE FALSE
 
 token GOTOEXPRESSION GOTOARGLIST
 
@@ -116,7 +116,7 @@ rule
   ;
 
   OptArg
-  : IDENT COLON Expression { result = Ast::OptionPairNode.new(val[0], val[2]) }
+  : KEYWORD Expression { result = Ast::OptionPairNode.new(val[0].chomp(':'), val[1]) }
   ;
 
   Block

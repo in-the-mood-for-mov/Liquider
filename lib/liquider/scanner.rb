@@ -86,6 +86,7 @@ class Liquider::Scanner
     MustacheCloseToken,
     TagCloseToken,
     IdentToken,
+    KeywordToken,
     EosToken,
   ].freeze
 

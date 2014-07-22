@@ -36,6 +36,8 @@ module Liquider::Tokens
     end
   end
 
+  KeywordToken = Token.new_type(:KEYWORD, %r<#{IdentToken.pattern.source}:>)
+
   NumberToken = Token.new_type(:NUMBER, %r<[0-9]+(?:\.[0-9]+)?>)
   StringToken = Token.new_type(:STRING, %r<"[^"]*">)
   TrueToken = Token.new_type(:TRUE, %r<true>)

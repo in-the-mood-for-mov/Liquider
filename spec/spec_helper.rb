@@ -43,6 +43,10 @@ module TokenSpecHelper
     [:IDENT, value.to_s]
   end
 
+  def t_keyword(value)
+    [:KEYWORD, "#{value}:"]
+  end
+
   def t_number(value)
     [:NUMBER, value.to_s]
   end

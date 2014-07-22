@@ -39,6 +39,14 @@ describe Scanner do
     ])
   end
 
+  it "can scan keywords" do
+    expect('{{ asdf:').to be_scanned_as([
+      t_mustache_open,
+      t_keyword(:asdf),
+      t_eos,
+    ])
+  end
+
   it 'can can mustaches surounded by text' do
     expect("<h1>{{ toto | print }}</h1>").to be_scanned_as([
       [:TEXT, '<h1>'],
