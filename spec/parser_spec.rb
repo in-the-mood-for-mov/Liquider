@@ -399,6 +399,30 @@ describe Liquider::Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it "parses assign statements" do
+    tokens = [
+      t_assign,
+      t_ident(:x),
+      t_eq,
+      t_number(2),
+      t_plus,
+      t_number(3),
+      t_tag_close,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::AssignNode.new(
+        Ast::SymbolNode.new('x'),
+        Ast::BinOpNode.new(
+          :+,
+          Ast::NumberNode.new(2),
+          Ast::NumberNode.new(3),
+        )
+      ),
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
   private
 
   def parse(tokens)

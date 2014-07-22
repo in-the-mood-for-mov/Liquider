@@ -55,6 +55,10 @@ module TokenSpecHelper
     [:STRING, value]
   end
 
+  def t_eq
+    [:EQ, '=']
+  end
+
   def t_plus
     [:PLUS, '+']
   end
@@ -101,6 +105,10 @@ module TokenSpecHelper
 
   def t_end_for
     [:ENDFOR, '{% endfor %}']
+  end
+
+  def t_assign
+    [:ASSIGN, '{% assign']
   end
 
   def t_tag_close

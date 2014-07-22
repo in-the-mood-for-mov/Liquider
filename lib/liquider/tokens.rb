@@ -51,7 +51,8 @@ module Liquider::Tokens
   DivToken = Token.new_type(:DIV, %r</>)
   PlusToken = Token.new_type(:PLUS, %r<\+>)
   MinusToken = Token.new_type(:MINUS, %r<->)
-  EqToken = Token.new_type(:EQ, %r<==>)
+  EqToken = Token.new_type(:EQ, %r<=>)
+  EqEqToken = Token.new_type(:EQEQ, %r<==>)
   NeToken = Token.new_type(:NE, %r<!=>)
   LtToken = Token.new_type(:LT, %r{<})
   LeToken = Token.new_type(:LE, %r{<=})
@@ -100,6 +101,8 @@ module Liquider::Tokens
   ForToken = Token.new_tag_leader(:FOR)
   InToken = Token.new_expr_keyword(:IN)
   EndForToken = Token.new_text_keyword(:ENDFOR)
+
+  AssignToken = Token.new_tag_leader(:ASSIGN)
 
   EndBlockToken = Token.new_type(:ENDBLOCK, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
     def next_mode(current_mode)

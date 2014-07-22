@@ -203,4 +203,17 @@ describe Scanner do
       t_eos,
     ])
   end
+
+  it "scans assigns" do
+    expect('{% assign x = 2 + 3 %}').to be_scanned_as([
+      t_assign,
+      t_ident(:x),
+      t_eq,
+      t_number(2),
+      t_plus,
+      t_number(3),
+      t_tag_close,
+      t_eos,
+    ])
+  end
 end

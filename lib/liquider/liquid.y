@@ -3,7 +3,7 @@ class Liquider::GeneratedParser
 token PIPE DOT DOTDOT COLON COMMA
 token TIMES DIV
 token PLUS MINUS
-token EQ NE LT LE GT GE CONTAINS
+token EQ EQEQ NE LT LE GT GE CONTAINS
 token MUSTACHEOPEN MUSTACHECLOSE
 token TAGOPEN TAGCLOSE
 token PARENOPEN PARENCLOSE
@@ -17,6 +17,7 @@ token MARKUP ENDBLOCK
 token IF ELSIF ELSE ENDIF UNLESS ENDUNLESS
 token CASE WHEN ENDCASE
 token FOR IN ENDFOR
+token ASSIGN
 
 rule
   Liquid
@@ -56,7 +57,7 @@ rule
 
   ComparisonExpression
   : AdditiveExpression
-  | ComparisonExpression EQ AdditiveExpression { result = Ast::BinOpNode.new(:==, val[0], val[2]) }
+  | ComparisonExpression EQEQ AdditiveExpression { result = Ast::BinOpNode.new(:==, val[0], val[2]) }
   | ComparisonExpression NE AdditiveExpression { result = Ast::BinOpNode.new(:!=, val[0], val[2]) }
   | ComparisonExpression LT AdditiveExpression { result = Ast::BinOpNode.new(:<, val[0], val[2]) }
   | ComparisonExpression LE AdditiveExpression { result = Ast::BinOpNode.new(:<=, val[0], val[2]) }
@@ -124,6 +125,7 @@ rule
   | UnlessStatement
   | CaseStatement
   | ForStatement
+  | AssignStatement
   | BlockHead Document BlockTail {
       head, document, tail = val
       unless head.tag_name == tail.tag_name
@@ -178,5 +180,12 @@ rule
   : FOR IDENT IN Expression TAGCLOSE Document ENDFOR {
       _, binding, _, expression, _, body, _ = *val
       result = Ast::ForNode.new(Ast::SymbolNode.new(binding), expression, body)
+    }
+  ;
+
+  AssignStatement
+  : ASSIGN IDENT EQ Expression TAGCLOSE {
+      _, binding, _, value = *val
+      result = Ast::AssignNode.new(Ast::SymbolNode.new(binding), value)
     }
   ;

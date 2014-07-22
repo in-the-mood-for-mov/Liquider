@@ -53,4 +53,5 @@ module Liquider::Ast
   WhenNode = Node.new_type(:when, :value, :body)
   CaseElseNode = Node.new_type(:case_else, :body)
   ForNode = Node.new_type(:for, :binding, :expression, :body)
+  AssignNode = Node.new_type(:assign, :binding, :value)
 end
