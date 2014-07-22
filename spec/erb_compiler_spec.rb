@@ -78,19 +78,31 @@ describe Liquider::ErbCompiler do
   end
 
   context AssignNode do
-    let(:target) {
-      AssignNode.new(SymbolNode.new('toto'),
-        FilterNode.new(
-          "filter1",
-          ArgListNode.new([
-            SymbolNode.new("identifier")
-          ], [])
-        )
-      )
-    }
+    context "simple" do
+      let(:target) {
+        AssignNode.new(SymbolNode.new("toto"), StringNode.new("titi"))
+      }
 
-    it 'assigns to the context correctly' do
-      expect(compiler.output).to eq("@context['toto'] = filter1(@context['identifier'])")
+      it 'assigns a litteral' do
+        expect(compiler.output).to eq("@context['toto'] = 'titi'")
+      end
+    end
+
+    context "with filters" do
+      let(:target) {
+        AssignNode.new(SymbolNode.new('toto'),
+          FilterNode.new(
+            "filter1",
+            ArgListNode.new([
+              SymbolNode.new("identifier")
+            ], [])
+          )
+        )
+      }
+
+      it 'assigns to the context correctly' do
+        expect(compiler.output).to eq("@context['toto'] = filter1(@context['identifier'])")
+      end
     end
   end
 
