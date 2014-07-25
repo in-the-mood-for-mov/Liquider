@@ -53,11 +53,27 @@ describe Liquider::ErbCompiler do
   end
 
   context CallNode do
-    let(:target) {
-      CallNode.new(StringNode.new("toto"), SymbolNode.new("length"))
-    }
-    it "doesn't send the symbol to the context" do
-      expect(compiler.output).to eq("'toto'.length")
+    context 'litteral' do
+      let(:target) {
+        CallNode.new(StringNode.new("toto"), SymbolNode.new("length"))
+      }
+      it "doesn't send the symbol to the context" do
+        skip
+        expect(compiler.output).to eq("'toto'.length")
+      end
+    end
+
+    context 'symbol' do
+      let(:target) {
+        CallNode.new(
+          CallNode.new(SymbolNode.new("toto"), SymbolNode.new("titi")),
+          SymbolNode.new("tata")
+        )
+      }
+
+      it 'delegates the call to the context' do
+        expect(compiler.output).to eq("@context['toto.titi.tata']")
+      end
     end
   end
 
@@ -66,7 +82,7 @@ describe Liquider::ErbCompiler do
       IndexNode.new(SymbolNode.new("toto"), SymbolNode.new("property"))
     }
     it "sends the symbol to the context" do
-      expect(compiler.output).to eq("@context['toto'][@context['property']]")
+      expect(compiler.output).to eq("@context['toto[property]']")
     end
   end
 
