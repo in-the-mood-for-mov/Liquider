@@ -2,6 +2,7 @@ class Liquider::ErbCompiler
   attr_reader :output
 
   def initialize
+    @context_open = false
     @output = ''
   end
 
@@ -54,7 +55,9 @@ class Liquider::ErbCompiler
   end
 
   def on_symbol(symbol)
-    @output << "@context['" << symbol.name << "']"
+    wrap_in_context {
+      @output << symbol.name
+    }
   end
 
   def on_string(string)
@@ -66,13 +69,17 @@ class Liquider::ErbCompiler
   end
 
   def on_call(call)
-    call.target.visit(self)
-    @output << '.' << call.property.name
+    wrap_in_context do
+      call.target.visit(self)
+      @output << '.' << call.property.name
+    end
   end
 
   def on_index(index)
-    index.target.visit(self)
-    wrap('[', ']') { index.property.visit(self) }
+    wrap_in_context {
+      index.target.visit(self)
+      wrap('[', ']') { index.property.visit(self) }
+    }
   end
 
   def on_parenthesised(parenthesis)
@@ -125,6 +132,21 @@ class Liquider::ErbCompiler
   end
 
   private
+  def wrap_in_context
+    if !@context_open
+      @context_open = true
+      @output << "@context['"
+      buffer, @output = @output, ""
+      yield
+      buffer << output.gsub(/'/, "\\\\'")
+      @output = buffer
+      @output << "']"
+      @context_open = false
+    else
+      yield
+    end
+  end
+
   def wrap(start, finish = nil)
     @output << start
     yield
