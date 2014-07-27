@@ -3,6 +3,7 @@ class Liquider::ErbCompiler
 
   def initialize
     @context_open = false
+    @variable_number = 0
     @output = ''
   end
 
@@ -117,6 +118,19 @@ class Liquider::ErbCompiler
 
   def on_local_fetch(local_fetch)
     @output << local_fetch.name
+  end
+
+  def on_for(for_node)
+    variable_name = "_liquider_var_#{@variable_number += 1}"
+    erb_tag {
+      for_node.expression.visit(self)
+      @output << ".each do |#{variable_name}|"
+    }
+    erb_tag {
+      AssignNode.new(for_node.binding, LocalFetchNode.new(variable_name)).visit(self)
+    }
+    for_node.body.visit(self)
+    erb_tag { @output << "end" }
   end
 
   def on_context_stack(context_stack)

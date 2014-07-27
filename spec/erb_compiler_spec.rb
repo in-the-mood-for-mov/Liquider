@@ -122,6 +122,24 @@ describe Liquider::ErbCompiler do
     end
   end
 
+  context ForNode do
+    let(:target) {
+      ForNode.new(
+        SymbolNode.new('x'),
+        CallNode.new(SymbolNode.new('foo'), SymbolNode.new('bar')),
+        DocumentNode.new([
+          MustacheNode.new(
+            CallNode.new(SymbolNode.new('x'), SymbolNode.new('title'))
+          ),
+        ])
+      )
+    }
+
+    it 'compiles the body in an each loop and assigns to the context' do
+      expect(compiler.output).to eq("<% @context['foo.bar'].each do |_liquider_var_1| %><% @context['x'] = _liquider_var_1 %><%= @context['x.title'] %><% end %>")
+    end
+  end
+
   context FilterNode do
     let(:target) {
       FilterNode.new(
