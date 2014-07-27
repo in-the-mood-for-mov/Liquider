@@ -7,6 +7,10 @@ class Liquider::ErbCompiler
     @output = ''
   end
 
+  def on_boolean(boolean)
+    @output << (!!boolean.value).to_s
+  end
+
   def on_document(document)
     document.elements.each do |element|
       element.visit(self)
@@ -131,6 +135,27 @@ class Liquider::ErbCompiler
     }
     for_node.body.visit(self)
     erb_tag { @output << "end" }
+  end
+
+  def on_if(if_node)
+    if_node.table.each.with_index do |branch, index|
+      erb_tag do
+        condition = if index == 0
+          'if'
+        elsif branch.first.is_a?(BooleanNode) && branch.first.value
+          'else'
+        else
+          'elsif'
+        end
+        @output << condition
+        if condition != 'else'
+          @output << " "
+          branch.first.visit(self)
+        end
+      end
+      branch.last.visit(self)
+    end
+    erb_tag { @output << 'end' }
   end
 
   def on_context_stack(context_stack)
