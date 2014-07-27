@@ -133,6 +133,32 @@ class Liquider::ErbCompiler
     erb_tag { @output << "end" }
   end
 
+  def on_case(case_node)
+    erb_tag {
+      @output << "case "
+      case_node.head.visit(self)
+    }
+    case_node.cases.each do |branch|
+      branch.visit(self)
+    end
+    erb_tag { @output << "end" }
+  end
+
+  def on_when(when_node)
+    erb_tag {
+      @output << "when "
+      when_node.value.visit(self)
+    }
+    when_node.body.visit(self)
+  end
+
+  def on_case_else(when_node)
+    erb_tag {
+      @output << "else"
+    }
+    when_node.body.visit(self)
+  end
+
   def on_context_stack(context_stack)
     erb_tag {
       @output << "@context.stack do"
