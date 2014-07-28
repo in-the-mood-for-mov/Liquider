@@ -63,6 +63,7 @@ module Liquider::Ast
   CaseElseNode = Node.new_type(:case_else, :body)
   ForNode = Node.new_type(:for, :binding, :expression, :body)
   AssignNode = Node.new_type(:assign, :binding, :value)
+  CaptureNode = Node.new_type(:capture, :binding, :document)
 
   NullNode = Node.new_type(:null) do
     def visit(visitor)

@@ -17,7 +17,7 @@ token MARKUP ENDBLOCK
 token IF ELSIF ELSE ENDIF UNLESS ENDUNLESS
 token CASE WHEN ENDCASE
 token FOR IN ENDFOR
-token ASSIGN
+token ASSIGN CAPTURE ENDCAPTURE
 
 rule
   Liquid
@@ -126,6 +126,7 @@ rule
   | CaseStatement
   | ForStatement
   | AssignStatement
+  | CaptureStatement
   | BlockHead Document BlockTail {
       head, document, tail = val
       unless head.tag_name == tail.tag_name
@@ -201,5 +202,12 @@ rule
   : ASSIGN IDENT EQ Expression TAGCLOSE {
       _, binding, _, value = *val
       result = Ast::AssignNode.new(Ast::SymbolNode.new(binding), value)
+    }
+  ;
+
+  CaptureStatement
+  : CAPTURE IDENT TAGCLOSE Document ENDCAPTURE {
+      _, binding, _, document, _ = *val
+      result = Ast::CaptureNode.new(Ast::SymbolNode.new(binding), document)
     }
   ;

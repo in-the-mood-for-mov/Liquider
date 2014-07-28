@@ -418,6 +418,26 @@ describe Liquider::Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it "parses capture statements" do
+    tokens = [
+      t_capture,
+      t_ident(:foo),
+      t_tag_close,
+      t_text('asdf'),
+      t_end_capture,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::CaptureNode.new(
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([
+          Ast::TextNode.new('asdf'),
+        ])
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
   private
 
   def parse(tokens)
