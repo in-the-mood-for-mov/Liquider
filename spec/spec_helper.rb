@@ -112,6 +112,14 @@ module TokenSpecHelper
     [:ASSIGN, '{% assign']
   end
 
+  def t_capture
+    [:CAPTURE, '{% capture']
+  end
+
+  def t_end_capture
+    [:ENDCAPTURE, '{% endcapture %}']
+  end
+
   def t_tag_close
     [:TAGCLOSE, "%}"]
   end

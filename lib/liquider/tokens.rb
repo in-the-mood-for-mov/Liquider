@@ -103,6 +103,8 @@ module Liquider::Tokens
   EndForToken = Token.new_text_keyword(:ENDFOR)
 
   AssignToken = Token.new_tag_leader(:ASSIGN)
+  CaptureToken = Token.new_tag_leader(:CAPTURE)
+  EndCaptureToken = Token.new_text_keyword(:ENDCAPTURE)
 
   EndBlockToken = Token.new_type(:ENDBLOCK, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
     def next_mode(current_mode)
