@@ -186,7 +186,7 @@ describe Scanner do
     ])
   end
 
-  it 'scans for' do
+  it "scans for" do
     expect('{% for x in foo %}').to be_scanned_as([
       t_for,
       t_ident(:x),
@@ -197,7 +197,19 @@ describe Scanner do
     ])
   end
 
-  it 'scans endfor' do
+  it "scans reversed for" do
+    expect('{% for x in foo reversed %}').to be_scanned_as([
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_reversed,
+      t_tag_close,
+      t_eos,
+    ])
+  end
+
+  it "scans endfor" do
     expect('{% endfor %}').to be_scanned_as([
       t_end_for,
       t_eos,
