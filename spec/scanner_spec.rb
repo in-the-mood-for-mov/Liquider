@@ -216,4 +216,15 @@ describe Scanner do
       t_eos,
     ])
   end
+
+  it "scans capture" do
+    expect('{% capture foo %}asdf{% endcapture %}').to be_scanned_as([
+      t_capture,
+      t_ident(:foo),
+      t_tag_close,
+      t_text('asdf'),
+      t_end_capture,
+      t_eos,
+    ])
+  end
 end

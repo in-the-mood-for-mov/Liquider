@@ -51,6 +51,8 @@ class Liquider::Scanner
     ForToken,
     EndForToken,
     AssignToken,
+    CaptureToken,
+    EndCaptureToken,
     TagOpenToken,
     EndBlockToken,
     EosToken
