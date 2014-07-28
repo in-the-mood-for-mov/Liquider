@@ -122,6 +122,31 @@ describe Liquider::ErbCompiler do
     end
   end
 
+  context CaseNode do
+    let(:target) {
+      CaseNode.new(
+        SymbolNode.new('x'),
+        [
+          WhenNode.new(
+            NumberNode.new(0),
+            DocumentNode.new([TextNode.new('foo')])
+          ),
+          WhenNode.new(
+            NumberNode.new(1),
+            DocumentNode.new([TextNode.new('bar')])
+          ),
+          CaseElseNode.new(
+            DocumentNode.new([TextNode.new('quux')])
+          ),
+        ]
+      )
+    }
+    it 'compiles case/when/else' do
+      expected = "<% case @context['x'] %><% when 0 %>foo<% when 1 %>bar<% else %>quux<% end %>"
+      expect(compiler.output).to eq(expected)
+    end
+  end
+
   context ForNode do
     let(:target) {
       ForNode.new(
