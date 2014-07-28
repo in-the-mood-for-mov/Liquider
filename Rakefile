@@ -3,7 +3,7 @@ require 'bundler/gem_tasks'
 task default: [:spec]
 
 desc "Run Rspec examples"
-task :spec do
+task :spec => :parser do
   sh 'rspec spec'
 end
 

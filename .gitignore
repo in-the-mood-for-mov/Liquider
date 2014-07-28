@@ -1,3 +1,5 @@
+/lib/liquider/generated_parser.rb
+
 *.gem
 *.rbc
 /.config
