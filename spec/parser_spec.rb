@@ -147,14 +147,13 @@ describe Liquider::Parser do
       [false, false],
     ]
     ast = Ast::DocumentNode.new([
-      Ast::IfNode.new([
-        [
-          Ast::SymbolNode.new('foo'),
-          Ast::DocumentNode.new([
-            Ast::TextNode.new('asdf')
-          ])
-        ]
-      ]),
+      Ast::IfNode.new(
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([
+          Ast::TextNode.new('asdf')
+        ]),
+        Ast::NullNode.new
+      ),
     ])
     expect(parse(tokens)).to eq(ast)
   end
@@ -173,19 +172,17 @@ describe Liquider::Parser do
       [false, false],
     ]
     ast = Ast::DocumentNode.new([
-      Ast::IfNode.new([
-        [
-          Ast::SymbolNode.new('foo'),
-          Ast::DocumentNode.new([
-            Ast::TextNode.new('asdf')
-          ])
-        ], [
-          Ast::BooleanNode.new(true),
+      Ast::IfNode.new(
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([
+          Ast::TextNode.new('asdf')
+        ]),
+        Ast::ElseNode.new(
           Ast::DocumentNode.new([
             Ast::MustacheNode.new(Ast::SymbolNode.new('bar'))
           ])
-        ]
-      ]),
+        )
+      ),
     ])
     expect(parse(tokens)).to eq(ast)
   end
@@ -197,7 +194,7 @@ describe Liquider::Parser do
       [:TAGCLOSE, '%}'],
       [:TEXT, 'asdf'],
       [:ELSIF, '{% elsif'],
-      [:FALSE, 'false'],
+      [:IDENT, 'quux'],
       [:TAGCLOSE, '%}'],
       [:ELSE, '{% else %}'],
       [:MUSTACHEOPEN, '{{'],
@@ -207,22 +204,21 @@ describe Liquider::Parser do
       [false, false],
     ]
     ast = Ast::DocumentNode.new([
-      Ast::IfNode.new([
-        [
-          Ast::SymbolNode.new('foo'),
-          Ast::DocumentNode.new([
-            Ast::TextNode.new('asdf')
-          ])
-        ], [
-          Ast::BooleanNode.new(false),
-          Ast::DocumentNode.new([])
-        ], [
-          Ast::BooleanNode.new(true),
-          Ast::DocumentNode.new([
-            Ast::MustacheNode.new(Ast::SymbolNode.new('bar'))
-          ])
-        ]
-      ]),
+      Ast::IfNode.new(
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([
+          Ast::TextNode.new('asdf')
+        ]),
+        Ast::IfNode.new(
+          Ast::SymbolNode.new('quux'),
+          Ast::DocumentNode.new([]),
+          Ast::ElseNode.new(
+            Ast::DocumentNode.new([
+              Ast::MustacheNode.new(Ast::SymbolNode.new('bar'))
+            ])
+          )
+        )
+      ),
     ])
     expect(parse(tokens)).to eq(ast)
   end
@@ -237,14 +233,13 @@ describe Liquider::Parser do
       [false, false],
     ]
     ast = Ast::DocumentNode.new([
-      Ast::IfNode.new([
-        [
-          Ast::NegationNode.new(Ast::SymbolNode.new('foo')),
-          Ast::DocumentNode.new([
-            Ast::TextNode.new('asdf')
-          ])
-        ]
-      ]),
+      Ast::IfNode.new(
+        Ast::NegationNode.new(Ast::SymbolNode.new('foo')),
+        Ast::DocumentNode.new([
+          Ast::TextNode.new('asdf')
+        ]),
+        Ast::NullNode.new
+      ),
     ])
     expect(parse(tokens)).to eq(ast)
   end

@@ -712,42 +712,51 @@ module_eval(<<'.,.,', 'liquid.y', 148)
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 152)
+module_eval(<<'.,.,', 'liquid.y', 153)
   def _reduce_55(val, _values, result)
-     result = Ast::IfNode.new([[val[1], val[3]], *val[4]]) 
+          _, head, _, document, continuation = *val
+      result = Ast::IfNode.new(head, document, continuation)
+    
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 156)
+module_eval(<<'.,.,', 'liquid.y', 160)
   def _reduce_56(val, _values, result)
-     result = [] 
+          result = Ast::NullNode.new
+    
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 157)
+module_eval(<<'.,.,', 'liquid.y', 163)
   def _reduce_57(val, _values, result)
-     result = [[Ast::BooleanNode.new(true), val[1]]] 
-    result
-  end
-.,.,
-
-module_eval(<<'.,.,', 'liquid.y', 158)
-  def _reduce_58(val, _values, result)
-     result = [[val[1], val[3]]] + val[4] 
-    result
-  end
-.,.,
-
-module_eval(<<'.,.,', 'liquid.y', 162)
-  def _reduce_59(val, _values, result)
-     result = Ast::IfNode.new([[Ast::NegationNode.new(val[1]), val[3]]]) 
+          _, body, _ = *val
+      result = Ast::ElseNode.new(body)
+    
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'liquid.y', 167)
+  def _reduce_58(val, _values, result)
+          _, head, _, body, continuation = *val
+      result = Ast::IfNode.new(head, body, continuation)
+    
+    result
+  end
+.,.,
+
+module_eval(<<'.,.,', 'liquid.y', 174)
+  def _reduce_59(val, _values, result)
+          _, head, _, body, _ = *val
+      result = Ast::IfNode.new(Ast::NegationNode.new(head), body, Ast::NullNode.new)
+    
+    result
+  end
+.,.,
+
+module_eval(<<'.,.,', 'liquid.y', 181)
   def _reduce_60(val, _values, result)
           _, head, _, _, first_case, _, first_value, rest = *val
       result = Ast::CaseNode.new(head, [WhenNode.new(first_case, first_value), *rest])
@@ -756,28 +765,28 @@ module_eval(<<'.,.,', 'liquid.y', 167)
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 173)
+module_eval(<<'.,.,', 'liquid.y', 187)
   def _reduce_61(val, _values, result)
      result = [] 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 174)
+module_eval(<<'.,.,', 'liquid.y', 188)
   def _reduce_62(val, _values, result)
      result = [CaseElseNode.new(val[2])] 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 175)
+module_eval(<<'.,.,', 'liquid.y', 189)
   def _reduce_63(val, _values, result)
      result = [WhenNode.new(val[1], val[3]), *val[4]] 
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 180)
+module_eval(<<'.,.,', 'liquid.y', 194)
   def _reduce_64(val, _values, result)
           _, binding, _, expression, _, body, _ = *val
       result = Ast::ForNode.new(Ast::SymbolNode.new(binding), expression, body)
@@ -786,7 +795,7 @@ module_eval(<<'.,.,', 'liquid.y', 180)
   end
 .,.,
 
-module_eval(<<'.,.,', 'liquid.y', 187)
+module_eval(<<'.,.,', 'liquid.y', 201)
   def _reduce_65(val, _values, result)
           _, binding, _, value = *val
       result = Ast::AssignNode.new(Ast::SymbolNode.new(binding), value)

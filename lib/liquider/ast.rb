@@ -8,18 +8,26 @@ module Liquider::Ast
           end
         end
 
-        type.class_eval(<<-INITIALIZE)
-          def initialize(#{attributes.join(',')})
-            #{attributes.map { |attribute| "@#{attribute}" }.join(',')} = #{attributes.join(',')}
-          end
-        INITIALIZE
+        if attributes.empty?
+          type.class_eval(<<-EQUALS)
+            def ==(other)
+              self.class == other.class
+            end
+          EQUALS
+        else
+          type.class_eval(<<-INITIALIZE)
+            def initialize(#{attributes.join(',')})
+              #{attributes.map { |attribute| "@#{attribute}" }.join(',')} = #{attributes.join(',')}
+            end
+          INITIALIZE
 
-        type.class_eval(<<-EQUALS)
-          def ==(other)
-            return false unless self.class == other.class
-            #{attributes.map { |attribute| "#{attribute} == other.#{attribute}" }.join(' && ')}
-          end
-        EQUALS
+          type.class_eval(<<-EQUALS)
+            def ==(other)
+              return false unless self.class == other.class
+              #{attributes.map { |attribute| "#{attribute} == other.#{attribute}" }.join(' && ')}
+            end
+          EQUALS
+        end
 
         type.class_eval(<<-VISIT)
           def visit(visitor)
@@ -48,10 +56,16 @@ module Liquider::Ast
   NumberNode = Node.new_type(:number, :value)
   BooleanNode = Node.new_type(:boolean, :value)
   ParenthesisedNode = Node.new_type(:parenthesised, :expression)
-  IfNode = Node.new_type(:if, :table)
+  IfNode = Node.new_type(:if, :head, :body, :continuation)
+  ElseNode = Node.new_type(:else, :body)
   CaseNode = Node.new_type(:case, :head, :cases)
   WhenNode = Node.new_type(:when, :value, :body)
   CaseElseNode = Node.new_type(:case_else, :body)
   ForNode = Node.new_type(:for, :binding, :expression, :body)
   AssignNode = Node.new_type(:assign, :binding, :value)
+
+  NullNode = Node.new_type(:null) do
+    def visit(visitor)
+    end
+  end
 end
