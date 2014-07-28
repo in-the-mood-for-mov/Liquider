@@ -150,17 +150,31 @@ rule
   ;
 
   IfStatement
-  : IF Expression TAGCLOSE Document IfContinuation { result = Ast::IfNode.new([[val[1], val[3]], *val[4]]) }
+  : IF Expression TAGCLOSE Document IfContinuation {
+      _, head, _, document, continuation = *val
+      result = Ast::IfNode.new(head, document, continuation)
+    }
   ;
 
   IfContinuation
-  : ENDIF { result = [] }
-  | ELSE Document ENDIF { result = [[Ast::BooleanNode.new(true), val[1]]] }
-  | ELSIF Expression TAGCLOSE Document IfContinuation { result = [[val[1], val[3]]] + val[4] }
+  : ENDIF {
+      result = Ast::NullNode.new
+    }
+  | ELSE Document ENDIF {
+      _, body, _ = *val
+      result = Ast::ElseNode.new(body)
+    }
+  | ELSIF Expression TAGCLOSE Document IfContinuation {
+      _, head, _, body, continuation = *val
+      result = Ast::IfNode.new(head, body, continuation)
+    }
   ;
 
   UnlessStatement
-  : UNLESS Expression TAGCLOSE Document ENDUNLESS { result = Ast::IfNode.new([[Ast::NegationNode.new(val[1]), val[3]]]) }
+  : UNLESS Expression TAGCLOSE Document ENDUNLESS {
+      _, head, _, body, _ = *val
+      result = Ast::IfNode.new(Ast::NegationNode.new(head), body, Ast::NullNode.new)
+    }
   ;
 
   CaseStatement
