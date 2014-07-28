@@ -394,6 +394,43 @@ describe Liquider::Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it "parses reversed for statements" do
+    tokens = [
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_reversed,
+      t_tag_close,
+      t_end_for,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::ForNode.new(
+        Ast::SymbolNode.new('x'),
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([]),
+        reversed: true,
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it "doesn't parse for statements with redundent reverse clause" do
+    tokens = [
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_reversed,
+      t_reversed,
+      t_tag_close,
+      t_end_for,
+      t_eos,
+    ]
+    expect { parse(tokens) }.to raise_error(LiquiderSyntaxError, "'reversed' was specified twice on 'for' tag.")
+  end
+
   it "parses assign statements" do
     tokens = [
       t_assign,

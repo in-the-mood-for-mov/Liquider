@@ -1,7 +1,9 @@
 module Liquider::Ast
   class Node
     class << self
-      def new_type(type_name, *attributes)
+      def new_type(type_name, *subnodes, options: {})
+        attributes = subnodes + options.keys
+
         type = Class.new(Node) do
           attributes.each do |attribute|
             attr_reader attribute
@@ -16,7 +18,7 @@ module Liquider::Ast
           EQUALS
         else
           type.class_eval(<<-INITIALIZE)
-            def initialize(#{attributes.join(',')})
+            def initialize(#{(subnodes + options.map { |k, v| "#{k}: #{v}" }).join(',')})
               #{attributes.map { |attribute| "@#{attribute}" }.join(',')} = #{attributes.join(',')}
             end
           INITIALIZE
@@ -61,7 +63,7 @@ module Liquider::Ast
   CaseNode = Node.new_type(:case, :head, :cases)
   WhenNode = Node.new_type(:when, :value, :body)
   CaseElseNode = Node.new_type(:case_else, :body)
-  ForNode = Node.new_type(:for, :binding, :expression, :body)
+  ForNode = Node.new_type(:for, :binding, :expression, :body, options: {reversed: false})
   AssignNode = Node.new_type(:assign, :binding, :value)
   CaptureNode = Node.new_type(:capture, :binding, :document)
 

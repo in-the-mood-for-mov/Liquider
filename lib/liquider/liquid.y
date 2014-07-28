@@ -16,7 +16,7 @@ token GOTOEXPRESSION GOTOARGLIST
 token MARKUP ENDBLOCK
 token IF ELSIF ELSE ENDIF UNLESS ENDUNLESS
 token CASE WHEN ENDCASE
-token FOR IN ENDFOR
+token FOR IN REVERSED ENDFOR
 token ASSIGN CAPTURE ENDCAPTURE
 
 rule
@@ -192,9 +192,20 @@ rule
   ;
 
   ForStatement
-  : FOR IDENT IN Expression TAGCLOSE Document ENDFOR {
-      _, binding, _, expression, _, body, _ = *val
-      result = Ast::ForNode.new(Ast::SymbolNode.new(binding), expression, body)
+  : FOR IDENT IN Expression ForOptions Document ENDFOR {
+      _, binding, _, expression, options, body, _ = *val
+      result = Ast::ForNode.new(Ast::SymbolNode.new(binding), expression, body, **options)
+    }
+  ;
+
+  ForOptions
+  : TAGCLOSE { result = {} }
+  | REVERSED ForOptions {
+      _, options = *val
+      if options.has_key?(:reversed)
+        raise LiquiderSyntaxError.new("'reversed' was specified twice on 'for' tag.")
+      end
+      result = options.merge(reversed: true)
     }
   ;
 

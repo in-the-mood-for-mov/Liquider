@@ -104,6 +104,10 @@ module TokenSpecHelper
     [:IN, 'in']
   end
 
+  def t_reversed
+    [:REVERSED, 'reversed']
+  end
+
   def t_end_for
     [:ENDFOR, '{% endfor %}']
   end
