@@ -1,12 +1,8 @@
 module Liquider::Ast
   class Node
     class << self
-      def new_type(type_name, *attributes, modules: [])
+      def new_type(type_name, *attributes)
         type = Class.new(Node) do
-          modules.each do |mod|
-            include mod
-          end
-
           attributes.each do |attribute|
             attr_reader attribute
           end
@@ -34,24 +30,6 @@ module Liquider::Ast
         type
       end
     end
-
-    def on_litteral
-    end
-
-    def on_boolean
-    end
-  end
-
-  module LitteralNode
-    def on_litteral
-      yield self
-    end
-  end
-
-  module BooleanNode
-    def on_boolean
-      yield self
-    end
   end
 
   DocumentNode = Node.new_type(:document, :elements)
@@ -66,9 +44,9 @@ module Liquider::Ast
   CallNode = Node.new_type(:call, :target, :property)
   IndexNode = Node.new_type(:index, :target, :property)
   SymbolNode = Node.new_type(:symbol, :name)
-  StringNode = Node.new_type(:string, :value, modules: [LitteralNode])
-  NumberNode = Node.new_type(:number, :value, modules: [LitteralNode])
-  BooleanNode = Node.new_type(:boolean, :value, modules: [LitteralNode, BooleanNode])
+  StringNode = Node.new_type(:string, :value)
+  NumberNode = Node.new_type(:number, :value)
+  BooleanNode = Node.new_type(:boolean, :value)
   ParenthesisedNode = Node.new_type(:parenthesised, :expression)
   IfNode = Node.new_type(:if, :table)
   CaseNode = Node.new_type(:case, :head, :cases)
