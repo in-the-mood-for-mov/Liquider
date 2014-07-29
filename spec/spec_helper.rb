@@ -72,6 +72,10 @@ module TokenSpecHelper
     [:DOT, '.']
   end
 
+  def t_comma
+    [:COMMA, ',']
+  end
+
   def t_mustache_open
     [:MUSTACHEOPEN, '{{']
   end

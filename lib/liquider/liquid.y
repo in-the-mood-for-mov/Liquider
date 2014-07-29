@@ -22,12 +22,12 @@ token ASSIGN CAPTURE ENDCAPTURE
 rule
   Liquid
   : Document
-  | GOTOEXPRESSION Expression { result = val[1] }
+  | GOTOEXPRESSION PipeExpression { result = val[1] }
   | GOTOARGLIST ArgList       { result = val[1] }
   ;
 
   Document
-  :                     { result = Ast::DocumentNode.new([]) }
+  : { result = Ast::DocumentNode.new([]) }
   | DocumentElementList { result = Ast::DocumentNode.new([val].flatten) }
   ;
 
@@ -37,14 +37,18 @@ rule
   ;
 
   DocumentElement
-  : TEXT     { result = Ast::TextNode.new(val[0]) }
-  | MUSTACHEOPEN Expression MUSTACHECLOSE { result = Ast::MustacheNode.new(val[1]) }
+  : TEXT { result = Ast::TextNode.new(val[0]) }
+  | MUSTACHEOPEN PipeExpression MUSTACHECLOSE { result = Ast::MustacheNode.new(val[1]) }
   | Block
   ;
 
   Expression
   : ComparisonExpression
-  | Expression PIPE Filter {
+  ;
+
+  PipeExpression
+  : Expression
+  | PipeExpression PIPE Filter {
       result = val[2]
       result.arg_list.positionals.unshift(val[0])
     }
@@ -90,7 +94,7 @@ rule
   | NUMBER { result = Ast::NumberNode.new(val[0].to_i) }
   | TRUE { result = Ast::BooleanNode.new(true) }
   | FALSE { result = Ast::BooleanNode.new(false) }
-  | PARENOPEN Expression PARENCLOSE { result = Ast::ParenthesisedNode.new(val[1]) }
+  | PARENOPEN PipeExpression PARENCLOSE { result = Ast::ParenthesisedNode.new(val[1]) }
   ;
 
   ArgList
@@ -192,20 +196,40 @@ rule
   ;
 
   ForStatement
-  : FOR IDENT IN Expression ForOptions Document ENDFOR {
-      _, binding, _, expression, options, body, _ = *val
+  : FOR IDENT IN Expression ForOptions TAGCLOSE Document ENDFOR {
+      _, binding, _, expression, options, _, body, _ = *val
       result = Ast::ForNode.new(Ast::SymbolNode.new(binding), expression, body, **options)
     }
   ;
 
   ForOptions
-  : TAGCLOSE { result = {} }
+  : { result = {} }
+  | COMMA ForOptions {
+      _, options = *val
+      result = options
+    }
+  | KEYWORD Expression ForOptions {
+      keyword, value, options = *val
+      result = case keyword.gsub(/:\z/, '')
+      when 'limit'
+        if options.has_key?(:limit)
+          raise LiquiderSyntaxError.new("'limit' was specified multiple times on 'for' tag.")
+        end
+        options.merge(limit: value)
+      when 'offset'
+        if options.has_key?(:offset)
+          raise LiquiderSyntaxError.new("'offset' was specified multiple times on 'for' tag.")
+        end
+        options.merge(offset: value)
+      else raise LiquiderSyntaxError.new("Unknown 'for' loop option '#{keyword}'.")
+      end
+    }
   | REVERSED ForOptions {
       _, options = *val
       if options.has_key?(:reversed)
-        raise LiquiderSyntaxError.new("'reversed' was specified twice on 'for' tag.")
+        raise LiquiderSyntaxError.new("'reversed' was specified multiple times on 'for' tag.")
       end
-      result = options.merge(reversed: true)
+      result = options.merge(reversed: Ast::BooleanNode.new(true))
     }
   ;
 
