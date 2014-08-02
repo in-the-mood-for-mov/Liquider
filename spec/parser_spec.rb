@@ -394,6 +394,120 @@ describe Liquider::Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it "parses reversed for statements" do
+    tokens = [
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_reversed,
+      t_tag_close,
+      t_end_for,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::ForNode.new(
+        Ast::SymbolNode.new('x'),
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([]),
+        reversed: Ast::BooleanNode.new(true),
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it "parses for statements with limit" do
+    tokens = [
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_keyword(:limit),
+      t_number(10),
+      t_tag_close,
+      t_end_for,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::ForNode.new(
+        Ast::SymbolNode.new('x'),
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([]),
+        limit: Ast::NumberNode.new(10),
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it "parses for statements with offset" do
+    tokens = [
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_keyword(:offset),
+      t_number(10),
+      t_tag_close,
+      t_end_for,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::ForNode.new(
+        Ast::SymbolNode.new('x'),
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([]),
+        offset: Ast::NumberNode.new(10),
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it "parses for stements with everything" do
+    tokens = [
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_keyword(:offset),
+      t_number(10),
+      t_reversed,
+      t_comma,
+      t_keyword(:limit),
+      t_ident(:bar),
+      t_plus,
+      t_number(10),
+      t_tag_close,
+      t_end_for,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::ForNode.new(
+        Ast::SymbolNode.new('x'),
+        Ast::SymbolNode.new('foo'),
+        Ast::DocumentNode.new([]),
+        offset: Ast::NumberNode.new(10),
+        limit: Ast::BinOpNode.new(:+, Ast::SymbolNode.new(:bar), Ast::NumberNode.new(10)),
+        reversed: Ast::BooleanNode.new(true),
+      )
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it "doesn't parse for statements with redundent reverse clause" do
+    tokens = [
+      t_for,
+      t_ident(:x),
+      t_in,
+      t_ident(:foo),
+      t_reversed,
+      t_reversed,
+      t_tag_close,
+      t_end_for,
+      t_eos,
+    ]
+    expect { parse(tokens) }.to raise_error(LiquiderSyntaxError, "'reversed' was specified multiple times on 'for' tag.")
+  end
+
   it "parses assign statements" do
     tokens = [
       t_assign,

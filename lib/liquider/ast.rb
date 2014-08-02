@@ -3,31 +3,26 @@ module Liquider::Ast
     class << self
       def new_type(type_name, *attributes)
         type = Class.new(Node) do
+          attr_reader :options
+
           attributes.each do |attribute|
             attr_reader attribute
           end
         end
 
-        if attributes.empty?
-          type.class_eval(<<-EQUALS)
-            def ==(other)
-              self.class == other.class
-            end
-          EQUALS
-        else
-          type.class_eval(<<-INITIALIZE)
-            def initialize(#{attributes.join(',')})
-              #{attributes.map { |attribute| "@#{attribute}" }.join(',')} = #{attributes.join(',')}
-            end
-          INITIALIZE
+        type.class_eval(<<-INITIALIZE)
+          def initialize(#{attributes.join(',')}, **options)
+            #{attributes.map { |attribute| "@#{attribute}" }.join(',')} = #{attributes.join(',')}
+            @options = options
+          end
+        INITIALIZE
 
-          type.class_eval(<<-EQUALS)
-            def ==(other)
-              return false unless self.class == other.class
-              #{attributes.map { |attribute| "#{attribute} == other.#{attribute}" }.join(' && ')}
-            end
-          EQUALS
-        end
+        type.class_eval(<<-EQUALS)
+          def ==(other)
+            return false unless self.class == other.class
+            #{attributes.map { |attribute| "#{attribute} == other.#{attribute}" }.join(' && ')}
+          end
+        EQUALS
 
         type.class_eval(<<-VISIT)
           def visit(visitor)
@@ -55,17 +50,46 @@ module Liquider::Ast
   StringNode = Node.new_type(:string, :value)
   NumberNode = Node.new_type(:number, :value)
   BooleanNode = Node.new_type(:boolean, :value)
+
+  class NilNode < Node
+    def ==(other)
+      self.class == other.clas
+    end
+
+    def visit(visitor)
+      visitor.on_nil(self)
+    end
+  end
+
   ParenthesisedNode = Node.new_type(:parenthesised, :expression)
   IfNode = Node.new_type(:if, :head, :body, :continuation)
   ElseNode = Node.new_type(:else, :body)
   CaseNode = Node.new_type(:case, :head, :cases)
   WhenNode = Node.new_type(:when, :value, :body)
   CaseElseNode = Node.new_type(:case_else, :body)
-  ForNode = Node.new_type(:for, :binding, :expression, :body)
+
+  ForNode = Node.new_type(:for, :binding, :expression, :body) do
+    def reversed?
+      @reversed ||= options[:reversed] || Ast::BooleanNode.new(false)
+    end
+
+    def limit
+      @offset ||= options[:limit] || Ast::NilNode.new
+    end
+
+    def offset
+      @offset ||= options[:offset] || Ast::NumberNode.new(0)
+    end
+  end
+
   AssignNode = Node.new_type(:assign, :binding, :value)
   CaptureNode = Node.new_type(:capture, :binding, :document)
 
-  NullNode = Node.new_type(:null) do
+  class NullNode < Node
+    def ==(other)
+      self.class == other.class
+    end
+
     def visit(visitor)
     end
   end

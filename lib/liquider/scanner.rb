@@ -84,6 +84,7 @@ class Liquider::Scanner
     GeToken,
     ContainsToken,
     InToken,
+    ReversedToken,
     ParenOpenToken,
     ParenCloseToken,
     MustacheCloseToken,

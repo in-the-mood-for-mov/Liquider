@@ -72,6 +72,10 @@ module TokenSpecHelper
     [:DOT, '.']
   end
 
+  def t_comma
+    [:COMMA, ',']
+  end
+
   def t_mustache_open
     [:MUSTACHEOPEN, '{{']
   end
@@ -102,6 +106,10 @@ module TokenSpecHelper
 
   def t_in
     [:IN, 'in']
+  end
+
+  def t_reversed
+    [:REVERSED, 'reversed']
   end
 
   def t_end_for

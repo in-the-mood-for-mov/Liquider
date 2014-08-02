@@ -100,6 +100,7 @@ module Liquider::Tokens
 
   ForToken = Token.new_tag_leader(:FOR)
   InToken = Token.new_expr_keyword(:IN)
+  ReversedToken = Token.new_expr_keyword(:REVERSED)
   EndForToken = Token.new_text_keyword(:ENDFOR)
 
   AssignToken = Token.new_tag_leader(:ASSIGN)
