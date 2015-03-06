@@ -159,6 +159,25 @@ class Liquider::ErbCompiler
     erb_tag { @output << "end" }
   end
 
+  def on_if(if_node)
+    erb_tag {
+      @output << "if "
+      if_node.head.visit(self)
+    }
+    if_node.body.visit(self)
+    if if_node.continuation.op?
+      erb_tag {
+        @output << "else"
+      }
+      if_node.continuation.visit(self)
+    end
+    erb_tag { @output << "end" }
+  end
+
+  def on_else(else_node)
+    else_node.body.visit(self)
+  end
+
   def on_case(case_node)
     erb_tag {
       @output << "case "

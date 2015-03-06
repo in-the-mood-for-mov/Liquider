@@ -16,6 +16,22 @@ describe Liquider::ErbCompiler do
     end
   end
 
+  context BooleanNode do
+    context "false" do
+      let(:target) { BooleanNode.new(false) }
+      it "outputs the value" do
+        expect(compiler.output).to eq("false")
+      end
+    end
+
+    context "true" do
+      let(:target) { BooleanNode.new(true) }
+      it "outputs the value" do
+        expect(compiler.output).to eq("true")
+      end
+    end
+  end
+
   context NumberNode do
     let(:target) { NumberNode.new(123.333) }
     it "outputs the number" do
@@ -249,6 +265,70 @@ describe Liquider::ErbCompiler do
 
       it "combines drop/take/reverse" do
         expect(compiler.output).to eq("<% @context['foo'].drop(5).take(5).reverse.each " + empty_body)
+      end
+    end
+  end
+
+  context IfNode do
+    context 'simple if' do
+      let(:target) {
+        IfNode.new(
+          SymbolNode.new('foo'),
+          DocumentNode.new([
+            TextNode.new('asdf')
+          ]),
+          NullNode.new
+        )
+      }
+
+      it 'compiles simple if nodes' do
+        expect(compiler.output).to eq("<% if @context['foo'] %>asdf<% end %>")
+      end
+    end
+
+    context 'if/else' do
+      let(:target) {
+        IfNode.new(
+          SymbolNode.new('foo'),
+          DocumentNode.new([
+            TextNode.new('asdf')
+          ]),
+          ElseNode.new(
+            DocumentNode.new([
+              MustacheNode.new(SymbolNode.new('bar'))
+            ])
+          )
+        )
+      }
+
+      it 'compiles if/else branches' do
+        expected = "<% if @context['foo'] %>asdf<% else %><%= @context['bar'] %><% end %>"
+        expect(compiler.output).to eq(expected)
+      end
+    end
+
+    context 'if/elsif/else' do
+      let(:target) {
+        IfNode.new(
+          SymbolNode.new('foo'),
+          DocumentNode.new([
+            TextNode.new('asdf')
+          ]),
+          IfNode.new(
+            SymbolNode.new('quux'),
+            DocumentNode.new([]),
+            ElseNode.new(
+              DocumentNode.new([
+                MustacheNode.new(SymbolNode.new('bar'))
+              ])
+            )
+          )
+        )
+      }
+
+      it 'compiles if/elsif/else branches' do
+        expected = "<% if @context['foo'] %>asdf<% else %><% if @context['quux'] %><% else %><%= @context['bar'] %><% end %><% end %>"
+        expect(compiler.output).to eq(expected)
       end
     end
   end
