@@ -124,6 +124,18 @@ class Liquider::ErbCompiler
     variable_name = "_liquider_var_#{@variable_number += 1}"
     erb_tag {
       for_node.expression.visit(self)
+      unless for_node.offset.is_a?(NumberNode) && for_node.offset.value == 0
+        wrap(".drop(", ")") {
+          for_node.offset.visit(self)
+        }
+      end
+      unless for_node.limit.is_a?(NilNode)
+        wrap(".take(", ")") {
+          for_node.limit.visit(self)
+        }
+      end
+
+      @output << ".reverse" if for_node.reversed.value
       @output << ".each do |#{variable_name}|"
     }
     erb_tag {
