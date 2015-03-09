@@ -61,25 +61,25 @@ rule
 
   ComparisonExpression
   : AdditiveExpression
-  | ComparisonExpression EQEQ AdditiveExpression { result = Ast::BinOpNode.new(:==, val[0], val[2]) }
-  | ComparisonExpression NE AdditiveExpression { result = Ast::BinOpNode.new(:!=, val[0], val[2]) }
-  | ComparisonExpression LT AdditiveExpression { result = Ast::BinOpNode.new(:<, val[0], val[2]) }
-  | ComparisonExpression LE AdditiveExpression { result = Ast::BinOpNode.new(:<=, val[0], val[2]) }
-  | ComparisonExpression GT AdditiveExpression { result = Ast::BinOpNode.new(:>, val[0], val[2]) }
-  | ComparisonExpression GE AdditiveExpression { result = Ast::BinOpNode.new(:>=, val[0], val[2]) }
-  | ComparisonExpression CONTAINS AdditiveExpression { result = Ast::BinOpNode.new(:contains, val[0], val[2]) }
+  | ComparisonExpression EQEQ AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :==) }
+  | ComparisonExpression NE AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :!=) }
+  | ComparisonExpression LT AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :<) }
+  | ComparisonExpression LE AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :<=) }
+  | ComparisonExpression GT AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :>) }
+  | ComparisonExpression GE AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :>=) }
+  | ComparisonExpression CONTAINS AdditiveExpression { result = Ast::BinOpNode.new(val[0], val[2], :contains) }
   ;
 
   AdditiveExpression
   : MultiplicativeExpression
-  | AdditiveExpression PLUS MultiplicativeExpression { result = Ast::BinOpNode.new(:+, val[0], val[2]) }
-  | AdditiveExpression MINUS MultiplicativeExpression { result = Ast::BinOpNode.new(:-, val[0], val[2], :-) }
+  | AdditiveExpression PLUS MultiplicativeExpression { result = Ast::BinOpNode.new(val[0], val[2], :+) }
+  | AdditiveExpression MINUS MultiplicativeExpression { result = Ast::BinOpNode.new(val[0], val[2], :-) }
   ;
 
   MultiplicativeExpression
   : CallExpression
-  | MultiplicativeExpression TIMES CallExpression { result = Ast::BinOpNode.new(:*, val[0], val[2]) }
-  | MultiplicativeExpression DIV CallExpression { result = Ast::BinOpNode.new(:'/', val[0], val[2]) }
+  | MultiplicativeExpression TIMES CallExpression { result = Ast::BinOpNode.new(val[0], val[2], :*) }
+  | MultiplicativeExpression DIV CallExpression { result = Ast::BinOpNode.new(val[0], val[2], :'/') }
   ;
 
   CallExpression

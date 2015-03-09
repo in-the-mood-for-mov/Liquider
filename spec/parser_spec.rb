@@ -26,19 +26,20 @@ describe Liquider::Parser do
       [false, false]
     ]
     ast = Ast::BinOpNode.new(
-      :<,
       Ast::BinOpNode.new(
-        :+,
         Ast::SymbolNode.new('foo'),
         Ast::BinOpNode.new(
-          :*,
           Ast::StringNode.new('bar'),
           Ast::SymbolNode.new('baz'),
+          :*,
         ),
+        :+,
       ),
       Ast::NumberNode.new(40),
+      :<,
     )
     expect(parse tokens).to eq(ast)
+    expect(ast.op).to eq(:<)
   end
 
   it 'can parse argument list' do
@@ -65,9 +66,9 @@ describe Liquider::Parser do
         Ast::OptionPairNode.new(
           'baz',
           Ast::BinOpNode.new(
-            :+,
             Ast::NumberNode.new(25),
-            Ast::NumberNode.new(36)
+            Ast::NumberNode.new(36),
+            :+,
           )
         ),
         Ast::OptionPairNode.new(
@@ -486,7 +487,7 @@ describe Liquider::Parser do
         Ast::SymbolNode.new('foo'),
         Ast::DocumentNode.new([]),
         offset: Ast::NumberNode.new(10),
-        limit: Ast::BinOpNode.new(:+, Ast::SymbolNode.new(:bar), Ast::NumberNode.new(10)),
+        limit: Ast::BinOpNode.new(Ast::SymbolNode.new(:bar), Ast::NumberNode.new(10), :+),
         reversed: Ast::BooleanNode.new(true),
       )
     ])
@@ -523,9 +524,9 @@ describe Liquider::Parser do
       Ast::AssignNode.new(
         Ast::SymbolNode.new('x'),
         Ast::BinOpNode.new(
-          :+,
           Ast::NumberNode.new(2),
           Ast::NumberNode.new(3),
+          :+,
         )
       ),
     ])
