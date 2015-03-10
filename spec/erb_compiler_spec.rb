@@ -23,6 +23,20 @@ describe Liquider::ErbCompiler do
     end
   end
 
+  context BooleanNode do
+    let(:target) { BooleanNode.new(true) }
+    it "outputs the boolean" do
+      expect(compiler.output).to eq("true")
+    end
+  end
+
+  context NilNode do
+    let(:target) { NilNode.new }
+    it "outputs nil" do
+      expect(compiler.output).to eq("nil")
+    end
+  end
+
   context TextNode do
     let(:target) { TextNode.new("<%= toto %>") }
     it "escapes the erb out of it" do
@@ -36,6 +50,15 @@ describe Liquider::ErbCompiler do
     }
     it "wraps it's expression into an erb output node" do
       expect(compiler.output).to eq("<%= 'foo' %>")
+    end
+  end
+
+  context NegationNode do
+    let(:target) {
+      NegationNode.new(NumberNode.new(5))
+    }
+    it "negates the expression" do
+      expect(compiler.output).to eq("!(5)")
     end
   end
 
