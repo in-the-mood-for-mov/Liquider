@@ -45,7 +45,7 @@ module Liquider::Ast
   ArgListNode = Node.new_type(:arg_list, :positionals, :optionals)
   OptionPairNode = Node.new_type(:option_pair, :key, :value)
   NegationNode = Node.new_type(:negation, :expression)
-  BinOpNode = Node.new_type(:binop, :left, :right, :op)
+  BinOpNode = Node.new_type(:binop, :op, :left, :right)
   CallNode = Node.new_type(:call, :target, :property)
   IndexNode = Node.new_type(:index, :target, :property)
   SymbolNode = Node.new_type(:symbol, :name)

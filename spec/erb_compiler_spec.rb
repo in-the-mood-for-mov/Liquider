@@ -81,9 +81,9 @@ describe Liquider::ErbCompiler do
   context BinOpNode do
     let(:target) {
       BinOpNode.new(
+        :+,
         StringNode.new("foo"),
         StringNode.new("bar"),
-        :+
       )
     }
     it "adds spaces for sanity" do
@@ -227,7 +227,7 @@ describe Liquider::ErbCompiler do
           SymbolNode.new('x'),
           SymbolNode.new('foo'),
           DocumentNode.new([]),
-          limit: BinOpNode.new(NumberNode.new(5), NumberNode.new(4), :+),
+          limit: BinOpNode.new(:+, NumberNode.new(5), NumberNode.new(4)),
         )
       }
 
@@ -242,7 +242,7 @@ describe Liquider::ErbCompiler do
           SymbolNode.new('x'),
           SymbolNode.new('foo'),
           DocumentNode.new([]),
-          offset: BinOpNode.new(NumberNode.new(5), NumberNode.new(4), :+),
+          offset: BinOpNode.new(:+, NumberNode.new(5), NumberNode.new(4)),
         )
       }
 
@@ -378,9 +378,9 @@ describe Liquider::ErbCompiler do
     let(:target) {
       ParenthesisedNode.new(
         BinOpNode.new(
-          ParenthesisedNode.new(BinOpNode.new(NumberNode.new(1), NumberNode.new(3), :+)),
-          BinOpNode.new(NumberNode.new(4), NumberNode.new(5), :*),
-          :/
+          :/,
+          ParenthesisedNode.new(BinOpNode.new(:+, NumberNode.new(1), NumberNode.new(3))),
+          BinOpNode.new(:*, NumberNode.new(4), NumberNode.new(5)),
         )
       )
     }
@@ -394,17 +394,17 @@ describe Liquider::ErbCompiler do
       DocumentNode.new([
         MustacheNode.new(
           BinOpNode.new(
+            :<,
             BinOpNode.new(
+              :+,
               SymbolNode.new('foo'),
               BinOpNode.new(
+                :*,
                 StringNode.new('bar'),
                 SymbolNode.new('baz'),
-                :*,
               ),
-              :+,
             ),
             NumberNode.new(40),
-            :<,
           ),
         ),
         TextNode.new("this is sparta")
