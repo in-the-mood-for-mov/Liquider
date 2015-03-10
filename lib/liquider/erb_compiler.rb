@@ -165,12 +165,10 @@ class Liquider::ErbCompiler
       if_node.head.visit(self)
     }
     if_node.body.visit(self)
-    if if_node.continuation.op?
-      erb_tag {
-        @output << "else"
-      }
-      if_node.continuation.visit(self)
-    end
+    erb_tag {
+      @output << "else"
+    }
+    if_node.continuation.visit(self)
     erb_tag { @output << "end" }
   end
 

@@ -282,7 +282,7 @@ describe Liquider::ErbCompiler do
       }
 
       it 'compiles simple if nodes' do
-        expect(compiler.output).to eq("<% if @context['foo'] %>asdf<% end %>")
+        expect(compiler.output).to eq("<% if @context['foo'] %>asdf<% else %><% end %>")
       end
     end
 

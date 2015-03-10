@@ -8,10 +8,6 @@ module Liquider::Ast
           attributes.each do |attribute|
             attr_reader attribute
           end
-
-          def op?
-            true
-          end
         end
 
         type.class_eval(<<-INITIALIZE)
@@ -41,11 +37,7 @@ module Liquider::Ast
     end
   end
 
-  DocumentNode = Node.new_type(:document, :elements) do
-    def op?
-      elements.any?(&:op?)
-    end
-  end
+  DocumentNode = Node.new_type(:document, :elements)
   TextNode = Node.new_type(:text, :text)
   MustacheNode = Node.new_type(:mustache, :expression)
   TagNode = Node.new_type(:tag, :node_name, :markup, :body)
@@ -101,10 +93,6 @@ module Liquider::Ast
     end
 
     def visit(visitor)
-    end
-
-    def op?
-      false
     end
   end
 end
