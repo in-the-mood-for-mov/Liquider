@@ -69,6 +69,20 @@ class Liquider::ErbCompiler
     @output << number.value.to_s
   end
 
+  def on_boolean(bool)
+    @output << bool.value.to_s
+  end
+
+  def on_nil(*)
+    @output << "nil"
+  end
+
+  def on_negation(negation)
+    wrap("!(",")") {
+      negation.expression.visit(self)
+    }
+  end
+
   def on_call(call)
     wrap_in_context do
       call.target.visit(self)
