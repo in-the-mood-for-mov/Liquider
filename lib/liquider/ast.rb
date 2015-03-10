@@ -1,7 +1,7 @@
 module Liquider::Ast
   class Node
     class << self
-      def new_type(type_name, *attributes)
+      def new_type(type_name, *attributes, &block)
         type = Class.new(Node) do
           attr_reader :options
 
@@ -29,6 +29,8 @@ module Liquider::Ast
             visitor.on_#{type_name}(self)
           end
         VISIT
+
+        type.class_eval(&block) if block
 
         type
       end
@@ -69,16 +71,16 @@ module Liquider::Ast
   CaseElseNode = Node.new_type(:case_else, :body)
 
   ForNode = Node.new_type(:for, :binding, :expression, :body) do
-    def reversed?
-      @reversed ||= options[:reversed] || Ast::BooleanNode.new(false)
+    def reversed
+      options[:reversed] || Ast::BooleanNode.new(false)
     end
 
     def limit
-      @offset ||= options[:limit] || Ast::NilNode.new
+      options[:limit] || Ast::NilNode.new
     end
 
     def offset
-      @offset ||= options[:offset] || Ast::NumberNode.new(0)
+      options[:offset] || Ast::NumberNode.new(0)
     end
   end
 

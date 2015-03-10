@@ -171,20 +171,85 @@ describe Liquider::ErbCompiler do
   end
 
   context ForNode do
-    let(:target) {
-      ForNode.new(
-        SymbolNode.new('x'),
-        CallNode.new(SymbolNode.new('foo'), SymbolNode.new('bar')),
-        DocumentNode.new([
-          MustacheNode.new(
-            CallNode.new(SymbolNode.new('x'), SymbolNode.new('title'))
-          ),
-        ])
-      )
-    }
+    let (:empty_body) { "do |_liquider_var_1| %><% @context['x'] = _liquider_var_1 %><% end %>" }
+    context "simple for" do
+      let(:target) {
+        ForNode.new(
+          SymbolNode.new('x'),
+          CallNode.new(SymbolNode.new('foo'), SymbolNode.new('bar')),
+          DocumentNode.new([
+            MustacheNode.new(
+              CallNode.new(SymbolNode.new('x'), SymbolNode.new('title'))
+            ),
+          ])
+        )
+      }
 
-    it 'compiles the body in an each loop and assigns to the context' do
-      expect(compiler.output).to eq("<% @context['foo.bar'].each do |_liquider_var_1| %><% @context['x'] = _liquider_var_1 %><%= @context['x.title'] %><% end %>")
+      it 'compiles the body in an each loop and assigns to the context' do
+        expect(compiler.output).to eq("<% @context['foo.bar'].each do |_liquider_var_1| %><% @context['x'] = _liquider_var_1 %><%= @context['x.title'] %><% end %>")
+      end
+    end
+
+    context "for reversed" do
+      let(:target) {
+        ForNode.new(
+          SymbolNode.new('x'),
+          SymbolNode.new('foo'),
+          DocumentNode.new([]),
+          reversed: BooleanNode.new(true),
+        )
+      }
+
+      it "reverses the elements" do
+        expect(compiler.output).to eq("<% @context['foo'].reverse.each " + empty_body)
+      end
+    end
+
+    context "for with limit" do
+      let(:target) {
+        ForNode.new(
+          SymbolNode.new('x'),
+          SymbolNode.new('foo'),
+          DocumentNode.new([]),
+          limit: BinOpNode.new(NumberNode.new(5), NumberNode.new(4), :+),
+        )
+      }
+
+      it "takes some elements" do
+        expect(compiler.output).to eq("<% @context['foo'].take(5 + 4).each " + empty_body)
+      end
+    end
+
+    context "for with offset" do
+      let(:target) {
+        ForNode.new(
+          SymbolNode.new('x'),
+          SymbolNode.new('foo'),
+          DocumentNode.new([]),
+          offset: BinOpNode.new(NumberNode.new(5), NumberNode.new(4), :+),
+        )
+      }
+
+      it "drops some elements" do
+        expect(compiler.output).to eq("<% @context['foo'].drop(5 + 4).each " + empty_body)
+      end
+    end
+
+    context "with everything" do
+      let(:target) {
+        ForNode.new(
+          SymbolNode.new('x'),
+          SymbolNode.new('foo'),
+          DocumentNode.new([]),
+          offset: NumberNode.new(5),
+          limit: NumberNode.new(5),
+          reversed: BooleanNode.new(true),
+        )
+      }
+
+      it "combines drop/take/reverse" do
+        expect(compiler.output).to eq("<% @context['foo'].drop(5).take(5).reverse.each " + empty_body)
+      end
     end
   end
 
