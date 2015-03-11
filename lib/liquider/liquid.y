@@ -73,7 +73,7 @@ rule
   AdditiveExpression
   : MultiplicativeExpression
   | AdditiveExpression PLUS MultiplicativeExpression { result = Ast::BinOpNode.new(:+, val[0], val[2]) }
-  | AdditiveExpression MINUS MultiplicativeExpression { result = Ast::BinOpNode.new(:-, val[0], val[2], :-) }
+  | AdditiveExpression MINUS MultiplicativeExpression { result = Ast::BinOpNode.new(:-, val[0], val[2]) }
   ;
 
   MultiplicativeExpression

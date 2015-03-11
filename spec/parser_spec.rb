@@ -39,6 +39,7 @@ describe Liquider::Parser do
       Ast::NumberNode.new(40),
     )
     expect(parse tokens).to eq(ast)
+    expect(ast.op).to eq(:<)
   end
 
   it 'can parse argument list' do
@@ -67,7 +68,7 @@ describe Liquider::Parser do
           Ast::BinOpNode.new(
             :+,
             Ast::NumberNode.new(25),
-            Ast::NumberNode.new(36)
+            Ast::NumberNode.new(36),
           )
         ),
         Ast::OptionPairNode.new(
