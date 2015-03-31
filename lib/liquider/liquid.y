@@ -17,7 +17,7 @@ token MARKUP ENDBLOCK
 token IF ELSIF ELSE ENDIF UNLESS ENDUNLESS
 token CASE WHEN ENDCASE
 token FOR IN REVERSED ENDFOR
-token ASSIGN CAPTURE ENDCAPTURE
+token ASSIGN CAPTURE ENDCAPTURE INCREMENT DECREMENT
 
 rule
   Liquid
@@ -131,6 +131,8 @@ rule
   | ForStatement
   | AssignStatement
   | CaptureStatement
+  | IncrementStatement
+  | DecrementStatement
   | BlockHead Document BlockTail {
       head, document, tail = val
       unless head.tag_name == tail.tag_name
@@ -244,5 +246,19 @@ rule
   : CAPTURE IDENT TAGCLOSE Document ENDCAPTURE {
       _, binding, _, document, _ = *val
       result = Ast::CaptureNode.new(Ast::SymbolNode.new(binding), document)
+    }
+  ;
+
+  IncrementStatement
+  : INCREMENT IDENT TAGCLOSE {
+      _, binding, _ = *val
+      result = Ast::IncrementNode.new(Ast::SymbolNode.new(binding))
+    }
+  ;
+
+  DecrementStatement
+  : DECREMENT IDENT TAGCLOSE {
+      _, binding, _ = *val
+      result = Ast::DecrementNode.new(Ast::SymbolNode.new(binding))
     }
   ;
