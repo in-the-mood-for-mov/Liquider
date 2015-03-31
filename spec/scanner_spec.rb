@@ -239,4 +239,22 @@ describe Scanner do
       t_eos,
     ])
   end
+
+  it "scans increment" do
+    expect('{% increment x %}').to be_scanned_as([
+      t_increment,
+      t_ident(:x),
+      t_tag_close,
+      t_eos,
+    ])
+  end
+
+  it "scans decrement" do
+    expect('{% decrement x %}').to be_scanned_as([
+      t_decrement,
+      t_ident(:x),
+      t_tag_close,
+      t_eos,
+    ])
+  end
 end

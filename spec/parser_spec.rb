@@ -554,6 +554,38 @@ describe Liquider::Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it "parses increment statements" do
+    tokens = [
+      t_increment,
+      t_ident(:x),
+      t_tag_close,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::IncrementNode.new(
+        Ast::SymbolNode.new('x')
+      )
+    ])
+
+    expect(parse(tokens)).to eq(ast)
+  end
+
+  it "parses decrement statements" do
+    tokens = [
+      t_decrement,
+      t_ident(:x),
+      t_tag_close,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::DecrementNode.new(
+        Ast::SymbolNode.new('x')
+      )
+    ])
+
+    expect(parse(tokens)).to eq(ast)
+  end
+
   private
 
   def parse(tokens)

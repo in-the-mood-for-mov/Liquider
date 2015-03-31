@@ -86,6 +86,8 @@ module Liquider::Ast
 
   AssignNode = Node.new_type(:assign, :binding, :value)
   CaptureNode = Node.new_type(:capture, :binding, :document)
+  IncrementNode = Node.new_type(:increment, :binding)
+  DecrementNode = Node.new_type(:decrement, :binding)
 
   class NullNode < Node
     def ==(other)

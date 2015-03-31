@@ -121,6 +121,14 @@ module TokenSpecHelper
     [:ENDCAPTURE, '{% endcapture %}']
   end
 
+  def t_increment
+    [:INCREMENT, '{% increment']
+  end
+
+  def t_decrement
+    [:DECREMENT, '{% decrement']
+  end
+
   def t_tag_close
     [:TAGCLOSE, "%}"]
   end
