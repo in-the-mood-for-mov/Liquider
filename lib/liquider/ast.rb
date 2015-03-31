@@ -40,7 +40,7 @@ module Liquider::Ast
   DocumentNode = Node.new_type(:document, :elements)
   TextNode = Node.new_type(:text, :text)
   MustacheNode = Node.new_type(:mustache, :expression)
-  TagNode = Node.new_type(:tag, :node_name, :markup, :body)
+  TagNode = Node.new_type(:tag, :value)
   FilterNode = Node.new_type(:filter, :message, :arg_list)
   ArgListNode = Node.new_type(:arg_list, :positionals, :optionals)
   OptionPairNode = Node.new_type(:option_pair, :key, :value)

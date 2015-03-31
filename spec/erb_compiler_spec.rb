@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'liquider'
-require 'liquider/erb_compiler'
 
 include Liquider::Ast
 include Liquider::ErbCompiler::Ast

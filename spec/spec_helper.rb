@@ -1,4 +1,5 @@
 require 'liquider'
+require 'liquider/erb_compiler'
 require 'rspec'
 require 'pry'
 
@@ -9,24 +10,16 @@ RSpec.configure do |config|
 end
 
 module Liquider::Spec
-  class TestBlock
+  class TestBlock < Liquider::Block
     class << self
-      def block?
-        true
-      end
-
       def parse_markup(source)
         :markup
       end
     end
   end
 
-  class TestTag
+  class TestTag < Liquider::Tag
     class << self
-      def block?
-        false
-      end
-
       def parse_markup(source)
         :markup
       end
