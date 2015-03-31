@@ -1,4 +1,5 @@
 require 'liquider'
+require 'liquider/erb_compiler'
 require 'rspec'
 require 'pry'
 

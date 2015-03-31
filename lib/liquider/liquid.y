@@ -136,8 +136,9 @@ rule
       unless head.tag_name == tail.tag_name
         raise LiquiderSyntaxError.new(%Q<Expected "{% end#{head.tag_name} %}", but found "{% end#{tail.tag_name} %}".>)
       end
-      parsed_markup = tags[head.tag_name].parse_markup(head.markup)
-      result = Ast::TagNode.new(head.tag_name, parsed_markup, document)
+      tag_class = tags[head.tag_name]
+      parsed_markup = tag_class.parse_markup(head.markup)
+      result = Ast::TagNode.new(tag_class.new(parsed_markup, document))
     }
   ;
 

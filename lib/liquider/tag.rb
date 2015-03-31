@@ -1,4 +1,6 @@
-class Liquider::Tag
+class Liquider::Tag < Struct.new(:markup, :document)
+  extend Liquider::MarkupHelper
+
   attr_reader :markup, :document
 
   def initialize(markup, document)
@@ -12,9 +14,9 @@ class Liquider::Tag
     end
 
     def parse_markup(source)
-      markup = Liquider::Parser.new({}, source).parse
-      raise LiquiderSyntaxError unless markup.is_a?(Liquider::Ast::ArgListNode)
-      markup
+      markup = parse_arguments(source)
+      return markup if markup.is_a?(Liquider::Ast::ArgListNode)
+      raise LiquiderSyntaxError, "expected argument list"
     end
   end
 end
