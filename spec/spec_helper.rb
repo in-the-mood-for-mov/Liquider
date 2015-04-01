@@ -32,6 +32,17 @@ module Liquider::Spec
   }
 end
 
+module IntegrationSpecHelper
+  def render(template: template, variables: variables, tags: tags)
+    scanner = Liquider::Scanner.new(Liquider::TextStream.new(template))
+    parser = Liquider::Parser.new(tags, scanner)
+    compiler = Liquider::ErbCompiler.new
+    parser.parse.visit(compiler)
+    renderer = ERB.new(compiler.output)
+    renderer.result(LiquidContext.wrap(variables))
+  end
+end
+
 module TokenSpecHelper
   def t_ident(value)
     [:IDENT, value.to_s]
