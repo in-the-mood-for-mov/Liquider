@@ -1,15 +1,13 @@
 require 'spec_helper'
 
+include Liquider::Ast
 describe Liquider::MarkupHelper do
   include TokenSpecHelper
   include Liquider::MarkupHelper
 
   it "can tokenize liquid source" do
     source = 'liquid'
-    text_stream = double('text_stream')
-    allow(TextStream).to receive(:new).with(source, mode: :liquid).and_return(text_stream)
-    allow(Scanner).to receive(:new).with(text_stream).and_return(t_ident(:x))
-    expect(tokenize(source).to_a).to eq(t_ident(:x))
+    expect(tokenize(source).to_a).to eq([t_text('liquid'), t_eos])
   end
 
   it "can split a simple token stream on a keyword" do
@@ -28,5 +26,27 @@ describe Liquider::MarkupHelper do
       [t_number(3)],
       [t_ident(:c), t_times, t_ident(:d)],
     ])
+  end
+
+  it "can parse expressions" do
+    ast = Liquider::Ast::BinOpNode.new(
+      :+,
+      NumberNode.new(5),
+      NumberNode.new(4),
+    )
+    expect(parse_expression('5 + 4')).to eq(ast)
+  end
+
+  it "can parse arguments" do
+    ast = ArgListNode.new(
+      [
+        StringNode.new("titi"),
+        StringNode.new("toto"),
+      ],
+      [
+        OptionPairNode.new("tu", StringNode.new("tu"))
+      ],
+    )
+    expect(parse_arguments('"titi", "toto", tu: "tu"')).to eq(ast)
   end
 end

@@ -28,14 +28,14 @@ Liquid::Template.register_filter(CapitalizeFilter)
 include Liquider::Spec
 
 describe Liquider do
-  let(:scanner) { Liquider::Scanner.new(Liquider::TextStream.new(template)) }
-  let(:parser) { Liquider::Parser.new(TAGS, scanner) }
-  let(:renderer) {
-    compiler = Liquider::ErbCompiler.new
-    parser.parse.visit(compiler)
-    ERB.new(compiler.output)
+  include IntegrationSpecHelper
+  let(:liquider_output) {
+    render(
+      template: template,
+      variables: variables,
+      tags: TAGS,
+    )
   }
-  let(:liquider_output) { renderer.result(LiquidContext.wrap(variables)) }
 
   let(:liquid_template) { Liquid::Template.parse(template) }
   let(:liquid_output) { liquid_template.render(variables) }
