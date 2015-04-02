@@ -90,7 +90,7 @@ rule
 
   PrimaryExpression
   : IDENT { result = Ast::SymbolNode.new(val[0]) }
-  | STRING { result = Ast::StringNode.new(val[0]) }
+  | STRING { result = Ast::StringNode.new(val[0][1...-1]) }
   | NUMBER { result = Ast::NumberNode.new(val[0].to_i) }
   | TRUE { result = Ast::BooleanNode.new(true) }
   | FALSE { result = Ast::BooleanNode.new(false) }
