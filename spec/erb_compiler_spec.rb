@@ -51,6 +51,16 @@ describe Liquider::ErbCompiler do
     end
   end
 
+  context TagNode do
+    let(:target) {
+      TagNode.new(TestTag.new(:markup, Ast::DocumentNode.new([])))
+    }
+    it "renders the tag" do
+      expect_any_instance_of(TestTag).to receive(:render_erb).with(compiler)
+      target.visit(compiler)
+    end
+  end
+
   context TextNode do
     let(:target) { TextNode.new("<%= toto %>") }
     it "escapes the erb out of it" do
@@ -432,7 +442,7 @@ describe Liquider::ErbCompiler do
       )
     }
     it 'renders blocks with attributes' do
-      expect(compiler.output).to eq("<div class='content'>a body</div>")
+      expect(compiler.output).to eq(%(<div class="content">a body</div>))
     end
   end
 

@@ -1,28 +1,6 @@
 require 'spec_helper'
 require 'liquid'
 
-module CapitalizeFilter
-  def capitalize(input)
-    input.upcase
-  end
-end
-
-class LiquidContext
-  include CapitalizeFilter
-
-  def initialize(context)
-    @context = context
-  end
-
-  def get_binding
-    binding
-  end
-
-  def self.wrap(context)
-    LiquidContext.new(context).get_binding
-  end
-end
-
 Liquid::Template.register_filter(CapitalizeFilter)
 
 include Liquider::Spec
@@ -30,7 +8,7 @@ include Liquider::Spec
 describe Liquider do
   include IntegrationSpecHelper
   let(:liquider_output) {
-    render(
+    render_html(
       template: template,
       variables: variables,
       tags: TAGS,

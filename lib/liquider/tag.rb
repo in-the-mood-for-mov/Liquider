@@ -1,11 +1,8 @@
 class Liquider::Tag < Struct.new(:markup, :document)
   extend Liquider::MarkupHelper
 
-  attr_reader :markup, :document
-
-  def initialize(markup, document)
-    @markup = markup
-    @document = document
+  def render_erb(compiler)
+    raise NoMethodError
   end
 
   class << self

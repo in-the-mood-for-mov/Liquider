@@ -9,6 +9,28 @@ RSpec.configure do |config|
   config.order = 'random'
 end
 
+module CapitalizeFilter
+  def capitalize(input)
+    input.upcase
+  end
+end
+
+class LiquidContext
+  include CapitalizeFilter
+
+  def initialize(context)
+    @context = context
+  end
+
+  def get_binding
+    binding
+  end
+
+  def self.wrap(context)
+    LiquidContext.new(context).get_binding
+  end
+end
+
 module Liquider::Spec
   class TestBlock < Liquider::Block
     class << self
@@ -19,6 +41,10 @@ module Liquider::Spec
   end
 
   class TestTag < Liquider::Tag
+    def render_erb(compiler)
+      compiler.raw("<tag></tag>")
+    end
+
     class << self
       def parse_markup(source)
         :markup
@@ -33,12 +59,16 @@ module Liquider::Spec
 end
 
 module IntegrationSpecHelper
-  def render(template: template, variables: variables, tags: tags)
+  def render_erb(template: template, variables: variables, tags: tags)
     scanner = Liquider::Scanner.new(Liquider::TextStream.new(template))
     parser = Liquider::Parser.new(tags, scanner)
     compiler = Liquider::ErbCompiler.new
     parser.parse.visit(compiler)
-    renderer = ERB.new(compiler.output)
+    compiler.output
+  end
+
+  def render_html(template: template, variables: variables, tags: tags)
+    renderer = ERB.new(render_erb(template: template, variables: variables, tags: tags))
     renderer.result(LiquidContext.wrap(variables))
   end
 end
