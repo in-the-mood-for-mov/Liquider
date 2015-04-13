@@ -77,6 +77,10 @@ class Liquider::ErbCompiler
     @output << "nil"
   end
 
+  def on_tag(tag)
+    tag.value.render_erb(self)
+  end
+
   def on_negation(negation)
     wrap("!(",")") {
       negation.expression.visit(self)
@@ -214,7 +218,22 @@ class Liquider::ErbCompiler
     }
   end
 
+  def raw(str)
+    @output << str
+  end
+
+  def erb_tag(output: false)
+    raise Liquider::LiquiderSyntaxError, "ERB statement already open" if @erb_open
+    @erb_open = true
+    @output << "<%#{'=' if output} "
+    yield
+    @output << " %>"
+  ensure
+    @erb_open = false
+  end
+
   private
+
   def wrap_in_context
     if !@context_open
       @context_open = true
@@ -240,26 +259,17 @@ class Liquider::ErbCompiler
     @output << '<' << tag.tag_name.to_s
     tag.opt_list.each do |opt_pair|
       @output << ' ' << opt_pair.key << '='
-      if [StringNode, NumberNode, BooleanNode].any? { |node_type| opt_pair.value.is_a?(node_type) }
-        opt_pair.value.visit(self)
-      else
-        wrap('"') {
+      wrap('"') {
+        case opt_pair.value
+        when StringNode, NumberNode, BooleanNode
+          @output << opt_pair.value.value.to_s
+        else
           erb_tag(output: true) {
             opt_pair.value.visit(self)
           }
+        end
         }
-      end
     end
-  end
-
-  def erb_tag(output: false)
-    raise Liquider::LiquiderSyntaxError, "ERB statement already open" if @erb_open
-    @erb_open = true
-    @output << "<%#{'=' if output} "
-    yield
-    @output << " %>"
-  ensure
-    @erb_open = false
   end
 
   def escape_erb(text)
