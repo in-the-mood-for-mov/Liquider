@@ -59,7 +59,7 @@ module Liquider::Spec
 end
 
 module IntegrationSpecHelper
-  def render_erb(template: template, variables: variables, tags: tags)
+  def render_erb(template:, variables:, tags:)
     scanner = Liquider::Scanner.new(Liquider::TextStream.new(template))
     parser = Liquider::Parser.new(tags, scanner)
     compiler = Liquider::ErbCompiler.new
@@ -67,7 +67,7 @@ module IntegrationSpecHelper
     compiler.output
   end
 
-  def render_html(template: template, variables: variables, tags: tags)
+  def render_html(template:, variables:, tags:)
     renderer = ERB.new(render_erb(template: template, variables: variables, tags: tags))
     renderer.result(LiquidContext.wrap(variables))
   end
@@ -91,79 +91,115 @@ module TokenSpecHelper
   end
 
   def t_eq
-    [:EQ, '=']
+    [:EQ, "="]
   end
 
   def t_plus
-    [:PLUS, '+']
+    [:PLUS, "+"]
   end
 
   def t_times
-    [:TIMES, '*']
+    [:TIMES, "*"]
+  end
+
+  def t_pipe
+    [:PIPE, "|"]
   end
 
   def t_dot
-    [:DOT, '.']
+    [:DOT, "."]
   end
 
   def t_comma
-    [:COMMA, ',']
+    [:COMMA, ","]
   end
 
   def t_mustache_open
-    [:MUSTACHEOPEN, '{{']
+    [:MUSTACHEOPEN, "{{"]
   end
 
   def t_mustache_close
-    [:MUSTACHECLOSE, '}}']
+    [:MUSTACHECLOSE, "}}"]
   end
 
-  def t_case
-    [:CASE, '{% case']
+  def t_if
+    [:IF, "{% if"]
   end
 
-  def t_when
-    [:WHEN, '{% when']
+  def t_elsif
+    [:ELSIF, "{% elsif"]
   end
 
   def t_else
-    [:ELSE, '{% else']
+    [:ELSE, "{% else %}"]
+  end
+
+  def t_end_if
+    [:ENDIF, "{% endif %}"]
+  end
+
+  def t_unless
+    [:UNLESS, "{% unless"]
+  end
+
+  def t_end_unless
+    [:ENDUNLESS, "{% endunless %}"]
+  end
+
+  def t_case
+    [:CASE, "{% case"]
+  end
+
+  def t_when
+    [:WHEN, "{% when"]
   end
 
   def t_end_case
-    [:ENDCASE, '{% endcase %}']
+    [:ENDCASE, "{% endcase %}"]
   end
 
   def t_for
-    [:FOR, '{% for']
+    [:FOR, "{% for"]
   end
 
   def t_in
-    [:IN, 'in']
+    [:IN, "in"]
   end
 
   def t_reversed
-    [:REVERSED, 'reversed']
+    [:REVERSED, "reversed"]
   end
 
   def t_end_for
-    [:ENDFOR, '{% endfor %}']
+    [:ENDFOR, "{% endfor %}"]
   end
 
   def t_assign
-    [:ASSIGN, '{% assign']
+    [:ASSIGN, "{% assign"]
   end
 
   def t_capture
-    [:CAPTURE, '{% capture']
+    [:CAPTURE, "{% capture"]
   end
 
   def t_end_capture
-    [:ENDCAPTURE, '{% endcapture %}']
+    [:ENDCAPTURE, "{% endcapture %}"]
+  end
+
+  def t_tag_open(name)
+    [:TAGOPEN, "{% #{name}"]
+  end
+
+  def t_markup(markup)
+    [:MARKUP, markup]
   end
 
   def t_tag_close
     [:TAGCLOSE, "%}"]
+  end
+
+  def t_end_block(name)
+    [:ENDBLOCK, "{% #{name} %}"]
   end
 
   def t_text(text)

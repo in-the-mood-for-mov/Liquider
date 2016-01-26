@@ -8,8 +8,8 @@ module Liquider::Tokens
   end
 
   TextToken = Token.new_type(:TEXT, %r<.*?(?:\z|(?=\{\{)|(?=\{%))>m) do
-    def next_mode(current_mode)
-      return :enter_liquid
+    def next_mode(_current_mode)
+      :enter_liquid
     end
 
     def ignore?
@@ -22,8 +22,8 @@ module Liquider::Tokens
       @raw_text ||= text.gsub(/\A\{%\s*raw\s*%\}/, '').gsub(/\{%\s*endraw\s*%\}\z/, '')
     end
 
-    def next_mode(current_mode)
-      return :text
+    def next_mode(_current_mode)
+      :text
     end
   end
 
@@ -39,7 +39,7 @@ module Liquider::Tokens
   KeywordToken = Token.new_type(:KEYWORD, %r<#{IdentToken.pattern.source}:>)
 
   NumberToken = Token.new_type(:NUMBER, %r<[0-9]+(?:\.[0-9]+)?>)
-  StringToken = Token.new_type(:STRING, %r<"[^"]*">)
+  StringToken = Token.new_type(:STRING, Regexp.union(%r<"[^"]*">, %r<'[^']*'>))
   TrueToken = Token.new_type(:TRUE, %r<true>)
   FalseToken = Token.new_type(:FALSE, %r<false>)
   PipeToken = Token.new_type(:PIPE, %r<\|>)
@@ -63,25 +63,25 @@ module Liquider::Tokens
   ParenCloseToken = Token.new_type(:PARENCLOSE, %r<\)>)
 
   MustacheOpenToken = Token.new_type(:MUSTACHEOPEN, %r<\{\{>) do
-    def next_mode(current_mode)
+    def next_mode(_current_mode)
       :liquid
     end
   end
 
   MustacheCloseToken = Token.new_type(:MUSTACHECLOSE, %r<}}>) do
-    def next_mode(current_mode)
+    def next_mode(_current_mode)
       :text
     end
   end
 
   TagOpenToken = Token.new_type(:TAGOPEN, Regexp.new('\{%\s*' + IdentToken.pattern.source)) do
-    def next_mode(current_mode)
+    def next_mode(_current_mode)
       :markup
     end
   end
 
   TagCloseToken = Token.new_type(:TAGCLOSE, %r<%\}>) do
-    def next_mode(current_mode)
+    def next_mode(_current_mode)
       :text
     end
   end
@@ -108,14 +108,14 @@ module Liquider::Tokens
   EndCaptureToken = Token.new_text_keyword(:ENDCAPTURE)
 
   EndBlockToken = Token.new_type(:ENDBLOCK, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
-    def next_mode(current_mode)
+    def next_mode(_current_mode)
       :text
     end
   end
 
 
   MarkupToken = Token.new_type(:MARKUP, %r<.*?(?=\z|(?=\%\}))>) do
-    def next_mode(current_mode)
+    def next_mode(_current_mode)
       :liquid
     end
   end
@@ -127,7 +127,7 @@ module Liquider::Tokens
       [false, false]
     end
 
-    def next_mode(current_mode)
+    def next_mode(_current_mode)
       :eos
     end
   end
@@ -142,7 +142,10 @@ module Liquider::Tokens
     end
 
     def raise_on_error(tokens, text_stream)
-      raise LiquiderSyntaxError.new(%Q{Expected one of #{humanize_tokens tokens}, but found "#{text_stream.summarize}".})
+      raise(
+        LiquiderSyntaxError,
+        %(Expected one of #{humanize_tokens(tokens)}, but found "#{text_stream.summarize}".),
+      )
     end
 
     private
