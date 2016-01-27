@@ -1,17 +1,19 @@
 require 'spec_helper'
 
 include Liquider::Ast
-include Liquider::ErbCompiler::Ast
 include Liquider::Spec
+include Liquider::RbCompiler::Ast
 
-describe Liquider::ErbCompiler do
-  let(:compiler) { Liquider::ErbCompiler.new }
-  before { target.visit(compiler) }
+describe Liquider::RbCompiler do
+  let(:compiler) { Liquider::RbCompiler.new }
+  before do
+    target.visit(compiler)
+  end
 
   context StringNode do
-    let(:target) { StringNode.new("hello y'all") }
+    let(:target) { StringNode.new('hello y#{all}') }
     it "escapes the strings" do
-      expect(compiler.output).to eq("'hello y\\'all'")
+      expect(compiler.output).to eq('"hello y\\#{all}"')
     end
   end
 
@@ -57,15 +59,15 @@ describe Liquider::ErbCompiler do
       TagNode.new(TestTag.new(:markup, DocumentNode.new([])))
     }
     it "renders the tag" do
-      expect_any_instance_of(TestTag).to receive(:render_erb).with(compiler)
+      expect_any_instance_of(TestTag).to receive(:render_rb).with(compiler)
       target.visit(compiler)
     end
   end
 
   context TextNode do
-    let(:target) { TextNode.new("<%= toto %>") }
-    it "escapes the erb out of it" do
-      expect(compiler.output).to eq("<%%= toto %>")
+    let(:target) { TextNode.new('<toto id="toto">') }
+    it "escapes the output" do
+      expect(compiler.output).to eq(%(@rb_output << "<toto id=\\"toto\\">"\n))
     end
   end
 
@@ -73,8 +75,8 @@ describe Liquider::ErbCompiler do
     let(:target) {
       MustacheNode.new(StringNode.new("foo"))
     }
-    it "wraps it's expression into an erb output node" do
-      expect(compiler.output).to eq("<%= 'foo' %>")
+    it "wraps it's expression into an rb output node" do
+      expect(compiler.output).to eq(%(@rb_output << "foo"\n\n))
     end
   end
 
@@ -96,7 +98,7 @@ describe Liquider::ErbCompiler do
       )
     }
     it "adds spaces for sanity" do
-      expect(compiler.output).to eq("'foo' + 'bar'")
+      expect(compiler.output).to eq(%("foo" + "bar"))
     end
   end
 
@@ -148,7 +150,7 @@ describe Liquider::ErbCompiler do
       }
 
       it 'assigns a litteral' do
-        expect(compiler.output).to eq("@context['toto'] = 'titi'")
+        expect(compiler.output).to eq(%(@context['toto'] = "titi"))
       end
     end
 
@@ -190,13 +192,18 @@ describe Liquider::ErbCompiler do
       )
     }
     it 'compiles case/when/else' do
-      expected = "<% case @context['x'] %><% when 0 %>foo<% when 1 %>bar<% else %>quux<% end %>"
+      expected =
+        %(case @context['x']\n) +
+        %(when 0\n@rb_output << "foo"\n) +
+        %(when 1\n@rb_output << "bar"\n) +
+        %(else\n@rb_output << "quux"\n) +
+        %(end\n)
       expect(compiler.output).to eq(expected)
     end
   end
 
   context ForNode do
-    let (:empty_body) { "do |_liquider_var_1| %><% @context['x'] = _liquider_var_1 %><% end %>" }
+    let (:empty_body) { "do |_liquider_var_1|\n@context['x'] = _liquider_var_1\nend\n" }
     context "simple for" do
       let(:target) {
         ForNode.new(
@@ -211,7 +218,7 @@ describe Liquider::ErbCompiler do
       }
 
       it 'compiles the body in an each loop and assigns to the context' do
-        expect(compiler.output).to eq("<% @context['foo.bar'].each do |_liquider_var_1| %><% @context['x'] = _liquider_var_1 %><%= @context['x.title'] %><% end %>")
+        expect(compiler.output).to eq(%(@context['foo.bar'].each do |_liquider_var_1|\n@context['x'] = _liquider_var_1\n@rb_output << @context['x.title']\n\nend\n))
       end
     end
 
@@ -226,7 +233,7 @@ describe Liquider::ErbCompiler do
       }
 
       it "reverses the elements" do
-        expect(compiler.output).to eq("<% @context['foo'].reverse.each " + empty_body)
+        expect(compiler.output).to eq("@context['foo'].reverse.each " + empty_body)
       end
     end
 
@@ -241,7 +248,7 @@ describe Liquider::ErbCompiler do
       }
 
       it "takes some elements" do
-        expect(compiler.output).to eq("<% @context['foo'].take(5 + 4).each " + empty_body)
+        expect(compiler.output).to eq("@context['foo'].take(5 + 4).each " + empty_body)
       end
     end
 
@@ -256,7 +263,7 @@ describe Liquider::ErbCompiler do
       }
 
       it "drops some elements" do
-        expect(compiler.output).to eq("<% @context['foo'].drop(5 + 4).each " + empty_body)
+        expect(compiler.output).to eq("@context['foo'].drop(5 + 4).each " + empty_body)
       end
     end
 
@@ -273,7 +280,7 @@ describe Liquider::ErbCompiler do
       }
 
       it "combines drop/take/reverse" do
-        expect(compiler.output).to eq("<% @context['foo'].drop(5).take(5).reverse.each " + empty_body)
+        expect(compiler.output).to eq("@context['foo'].drop(5).take(5).reverse.each " + empty_body)
       end
     end
   end
@@ -291,7 +298,7 @@ describe Liquider::ErbCompiler do
       }
 
       it 'compiles simple if nodes' do
-        expect(compiler.output).to eq("<% if @context['foo'] %>asdf<% else %><% end %>")
+        expect(compiler.output).to eq(%(if @context['foo']\n@rb_output << "asdf"\nelse\nend\n))
       end
     end
 
@@ -311,7 +318,7 @@ describe Liquider::ErbCompiler do
       }
 
       it 'compiles if/else branches' do
-        expected = "<% if @context['foo'] %>asdf<% else %><%= @context['bar'] %><% end %>"
+        expected = %(if @context['foo']\n@rb_output << "asdf"\nelse\n@rb_output << @context['bar']\n\nend\n)
         expect(compiler.output).to eq(expected)
       end
     end
@@ -336,7 +343,7 @@ describe Liquider::ErbCompiler do
       }
 
       it 'compiles if/elsif/else branches' do
-        expected = "<% if @context['foo'] %>asdf<% else %><% if @context['quux'] %><% else %><%= @context['bar'] %><% end %><% end %>"
+        expected = %(if @context['foo']\n@rb_output << "asdf"\nelse\nif @context['quux']\nelse\n@rb_output << @context['bar']\n\nend\nend\n)
         expect(compiler.output).to eq(expected)
       end
     end
@@ -379,7 +386,7 @@ describe Liquider::ErbCompiler do
     }
 
     it 'correctly outputs positionals and optionals' do
-      expect(compiler.output).to eq("'arg1', @context['variable'], {'key' => 'value', 'other_key' => @context['other_variable']}")
+      expect(compiler.output).to eq(%("arg1", @context['variable'], {"key" => "value", "other_key" => @context['other_variable']}))
     end
   end
 
@@ -421,38 +428,19 @@ describe Liquider::ErbCompiler do
     }
 
     it "compiles the document" do
-      expect(compiler.output).to eq("<%= @context['foo'] + 'bar' * @context['baz'] < 40 %>this is sparta")
-    end
-  end
-
-  context HtmlTagNode do
-    let(:target) {
-      HtmlTagNode.new(:input, [OptionPairNode.new("type", SymbolNode.new("text"))])
-    }
-    it 'renders tags with attributes' do
-      expect(compiler.output).to eq('<input type="<%= @context[\'text\'] %>"/>')
-    end
-  end
-
-  context HtmlBlockNode do
-    let(:target) {
-      HtmlBlockNode.new(
-        :div,
-        [OptionPairNode.new("class", StringNode.new("content"))],
-        TextNode.new("a body")
+      expect(compiler.output).to eq(
+        %(@rb_output << @context['foo'] + "bar" * @context['baz'] < 40\n\n) +
+        %(@rb_output << "this is sparta"\n)
       )
-    }
-    it 'renders blocks with attributes' do
-      expect(compiler.output).to eq(%(<div class="content">a body</div>))
     end
   end
 
   context CaptureNode do
     let(:target) {
-      CaptureNode.new("toto", HtmlTagNode.new(:div, []))
+      CaptureNode.new("toto", MustacheNode.new(StringNode.new("test")))
     }
     it 'captures the body of the div' do
-      expect(compiler.output).to eq("<% toto = capture do %><div/><% end %>")
+      expect(compiler.output).to eq(%(toto = capture do\n@rb_output << "test"\n\nend\n))
     end
   end
 
@@ -461,7 +449,7 @@ describe Liquider::ErbCompiler do
       LocalAssignNode.new("toto", StringNode.new("titi"))
     }
     it 'assigns the variable to the local context' do
-      expect(compiler.output).to eq("<% toto = 'titi' %>")
+      expect(compiler.output).to eq(%(toto = "titi"\n))
     end
   end
 
@@ -470,7 +458,7 @@ describe Liquider::ErbCompiler do
       MustacheNode.new(LocalFetchNode.new("toto"))
     }
     it 'renders correctly' do
-      expect(compiler.output).to eq("<%= toto %>")
+      expect(compiler.output).to eq("@rb_output << toto\n\n")
     end
   end
 
@@ -479,8 +467,9 @@ describe Liquider::ErbCompiler do
       ContextStackNode.new(TextNode.new("text"))
     }
     it 'stacks context' do
-      expect(compiler.output).to eq("<% @context.stack do %>text<% end %>")
+      expect(compiler.output).to eq(%(@context.stack do\n@rb_output << "text"\nend\n))
     end
   end
 end
+
 

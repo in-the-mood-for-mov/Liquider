@@ -72,15 +72,15 @@ module Liquider::Ast
 
   ForNode = Node.new_type(:for, :binding, :expression, :body) do
     def reversed
-      options[:reversed] || Ast::BooleanNode.new(false)
+      options[:reversed] || BooleanNode.new(false)
     end
 
     def limit
-      options[:limit] || Ast::NilNode.new
+      options[:limit] || NilNode.new
     end
 
     def offset
-      options[:offset] || Ast::NumberNode.new(0)
+      options[:offset] || NumberNode.new(0)
     end
   end
 

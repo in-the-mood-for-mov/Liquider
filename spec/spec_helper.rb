@@ -1,5 +1,6 @@
 require 'liquider'
 require 'liquider/erb_compiler'
+require 'liquider/rb_compiler'
 require 'rspec'
 require 'pry'
 
@@ -42,6 +43,10 @@ module Liquider::Spec
 
   class TestTag < Liquider::Tag
     def render_erb(compiler)
+      compiler.raw("<tag></tag>")
+    end
+
+    def render_rb(compiler)
       compiler.raw("<tag></tag>")
     end
 
