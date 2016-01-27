@@ -72,6 +72,14 @@ module IntegrationSpecHelper
     compiler.output
   end
 
+  def render_rb(template:, variables:, tags:)
+    scanner = Liquider::Scanner.new(Liquider::TextStream.new(template))
+    parser = Liquider::Parser.new(tags, scanner)
+    compiler = Liquider::RbCompiler.new
+    parser.parse.visit(compiler)
+    compiler.output
+  end
+
   def render_html(template:, variables:, tags:)
     renderer = ERB.new(render_erb(template: template, variables: variables, tags: tags))
     renderer.result(LiquidContext.wrap(variables))
