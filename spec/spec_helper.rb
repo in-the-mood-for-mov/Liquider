@@ -95,6 +95,14 @@ module TokenSpecHelper
     [:KEYWORD, "#{value}:"]
   end
 
+  def t_true
+    [:TRUE, "true"]
+  end
+
+  def t_false
+    [:FALSE, "false"]
+  end
+
   def t_number(value)
     [:NUMBER, value.to_s]
   end

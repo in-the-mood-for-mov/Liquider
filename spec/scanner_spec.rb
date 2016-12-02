@@ -32,6 +32,16 @@ describe Scanner do
     ])
   end
 
+  it "scans plain text after liquid nodes" do
+    expect("{% if true %}{% endif %}asdf").to be_scanned_as([
+      t_if,
+      t_true,
+      t_tag_close,
+      t_end_if,
+      t_text("asdf"),
+    ])
+  end
+
   it "can scan mustaches" do
     expect("{{ foo + 5 }}").to be_scanned_as([
       t_mustache_open,

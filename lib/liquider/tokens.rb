@@ -89,23 +89,43 @@ module Liquider::Tokens
   IfToken = Token.new_tag_leader(:IF)
   ElsifToken = Token.new_tag_leader(:ELSIF)
   ElseToken = Token.new_text_keyword(:ELSE)
-  EndIfToken = Token.new_text_keyword(:ENDIF)
+  EndIfToken = Token.new_text_keyword(:ENDIF) do
+    def next_mode(_current_mode)
+      :text
+    end
+  end
 
   UnlessToken = Token.new_tag_leader(:UNLESS)
-  EndUnlessToken = Token.new_text_keyword(:ENDUNLESS)
+  EndUnlessToken = Token.new_text_keyword(:ENDUNLESS) do
+    def next_mode(_current_mode)
+      :text
+    end
+  end
 
   CaseToken = Token.new_tag_leader(:CASE)
   WhenToken = Token.new_tag_leader(:WHEN)
-  EndCaseToken = Token.new_text_keyword(:ENDCASE)
+  EndCaseToken = Token.new_text_keyword(:ENDCASE) do
+    def next_mode(_current_mode)
+      :text
+    end
+  end
 
   ForToken = Token.new_tag_leader(:FOR)
   InToken = Token.new_expr_keyword(:IN)
   ReversedToken = Token.new_expr_keyword(:REVERSED)
-  EndForToken = Token.new_text_keyword(:ENDFOR)
+  EndForToken = Token.new_text_keyword(:ENDFOR) do
+    def next_mode(_current_mode)
+      :text
+    end
+  end
 
   AssignToken = Token.new_tag_leader(:ASSIGN)
   CaptureToken = Token.new_tag_leader(:CAPTURE)
-  EndCaptureToken = Token.new_text_keyword(:ENDCAPTURE)
+  EndCaptureToken = Token.new_text_keyword(:ENDCAPTURE) do
+    def next_mode(_current_mode)
+      :text
+    end
+  end
 
   EndBlockToken = Token.new_type(:ENDBLOCK, Regexp.new('\{%\s*end' + IdentToken.pattern.source + '\s*%\}')) do
     def next_mode(_current_mode)
