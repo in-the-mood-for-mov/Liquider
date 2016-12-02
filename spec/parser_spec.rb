@@ -534,6 +534,31 @@ describe Liquider::Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it "parses assign with filters" do
+    tokens = [
+      t_assign,
+      t_ident(:x),
+      t_eq,
+      t_string(%("toto")),
+      t_pipe,
+      t_ident(:capitalize),
+      t_tag_close,
+      t_eos,
+    ]
+    ast = Ast::DocumentNode.new([
+      Ast::AssignNode.new(
+        Ast::SymbolNode.new("x"),
+        Ast::FilterNode.new(
+          "capitalize",
+          Ast::ArgListNode.new([
+            Ast::StringNode.new("toto"),
+          ], [])
+        )
+      ),
+    ])
+    expect(parse(tokens)).to eq(ast)
+  end
+
   it "parses capture statements" do
     tokens = [
       t_capture,
@@ -557,6 +582,6 @@ describe Liquider::Parser do
   private
 
   def parse(tokens)
-    Liquider::Parser.new(TAGS, tokens).parse
+    Liquider::Parser.new(Liquider::Spec::TAGS, tokens).parse
   end
 end

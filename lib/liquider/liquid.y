@@ -235,7 +235,7 @@ rule
   ;
 
   AssignStatement
-  : ASSIGN IDENT EQ Expression TAGCLOSE {
+  : ASSIGN IDENT EQ PipeExpression TAGCLOSE {
       _, binding, _, value = *val
       result = Ast::AssignNode.new(Ast::SymbolNode.new(binding), value)
     }
