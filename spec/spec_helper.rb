@@ -127,6 +127,10 @@ module TokenSpecHelper
     [:PIPE, "|"]
   end
 
+  def t_colon
+    [:COLON, ":"]
+  end
+
   def t_dot
     [:DOT, "."]
   end

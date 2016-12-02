@@ -105,7 +105,7 @@ rule
   ;
 
   PosArgList
-  : Expression
+  : Expression { result = [val[0]] }
   | PosArgList COMMA Expression { result = [val[0], val[2]].flatten }
   ;
 

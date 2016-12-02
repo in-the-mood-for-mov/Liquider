@@ -139,6 +139,30 @@ describe Liquider::Parser do
     expect(parse(tokens)).to eq(ast)
   end
 
+  it "can parse filters with arguments" do
+    tokens = [
+      [:GOTOEXPRESSION, ''],
+      t_ident("identifier"),
+      t_pipe,
+      t_ident("filter"),
+      t_colon,
+      t_string(%("toto")),
+      [false, false]
+    ]
+    ast = Ast::FilterNode.new(
+      "filter",
+      Ast::ArgListNode.new([
+        Ast::SymbolNode.new(
+          "identifier",
+        ),
+        Ast::StringNode.new(
+          "toto",
+        )], []
+      )
+    )
+    expect(parse(tokens)).to eq(ast)
+  end
+
   it 'parses simple if statements' do
     tokens = [
       [:IF, '{% if'],
