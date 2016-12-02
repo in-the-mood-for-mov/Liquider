@@ -43,7 +43,7 @@ module Liquider::Tokens
   TrueToken = Token.new_type(:TRUE, %r<true>)
   FalseToken = Token.new_type(:FALSE, %r<false>)
   PipeToken = Token.new_type(:PIPE, %r<\|>)
-  DotToken = Token.new_type(:DOT, %r<\.\.>)
+  DotToken = Token.new_type(:DOT, %r<\.>)
   DoubleDotToken = Token.new_type(:DOUBLEDOT, %r<\.\.>)
   ColonToken = Token.new_type(:COLON, %r<:>)
   CommaToken = Token.new_type(:COMMA, %r<,>)

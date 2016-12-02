@@ -131,6 +131,16 @@ describe Scanner do
     ])
   end
 
+  it "scans ifs with expressions" do
+    expect("{% if a.b %}").to be_scanned_as([
+      t_if,
+      t_ident("a"),
+      t_dot,
+      t_ident("b"),
+      t_tag_close,
+    ])
+  end
+
   it "scans elsif" do
     expect("{% elsif foo %}").to be_scanned_as([
       t_elsif,
