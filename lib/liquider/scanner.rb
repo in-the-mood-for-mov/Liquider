@@ -91,7 +91,6 @@ module Liquider
       MustacheCloseToken,
       TagCloseToken,
       IdentToken,
-      KeywordToken,
       EosToken,
     ].freeze
 

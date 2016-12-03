@@ -71,7 +71,22 @@ describe Scanner do
   it "can scan keywords" do
     expect("{{ asdf:").to be_scanned_as([
       t_mustache_open,
-      t_keyword(:asdf),
+      t_ident(:asdf),
+      t_colon,
+    ])
+  end
+
+  it "scans assigns with keywords" do
+    expect("{% assign meta_tags = current_tags | join: ', ' %}").to be_scanned_as([
+      t_assign,
+      t_ident("meta_tags"),
+      t_eq,
+      t_ident("current_tags"),
+      t_pipe,
+      t_ident("join"),
+      t_colon,
+      t_string(%(', ')),
+      t_tag_close,
     ])
   end
 

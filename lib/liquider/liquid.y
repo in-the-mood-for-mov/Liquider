@@ -9,7 +9,7 @@ token TAGOPEN TAGCLOSE
 token PARENOPEN PARENCLOSE
 token BRACKETOPEN BRACKETCLOSE
 
-token TEXT IDENT KEYWORD NUMBER STRING TRUE FALSE
+token TEXT IDENT NUMBER STRING TRUE FALSE
 
 token GOTOEXPRESSION GOTOARGLIST
 
@@ -121,7 +121,7 @@ rule
   ;
 
   OptArg
-  : KEYWORD Expression { result = Ast::OptionPairNode.new(val[0].chomp(':'), val[1]) }
+  : IDENT COLON Expression { result = Ast::OptionPairNode.new(val[0].chomp(':'), val[2]) }
   ;
 
   Block
@@ -209,9 +209,9 @@ rule
       _, options = *val
       result = options
     }
-  | KEYWORD Expression ForOptions {
-      keyword, value, options = *val
-      result = case keyword.gsub(/:\z/, '')
+  | IDENT COLON Expression ForOptions {
+      keyword, _, value, options = *val
+      result = case keyword
       when 'limit'
         if options.has_key?(:limit)
           raise LiquiderSyntaxError.new("'limit' was specified multiple times on 'for' tag.")
